@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setup Express - Google Merchant Center</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #e5e5e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    gap: 16px;
+    flex-direction: column;
+  }
+
+  /* Overlay */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+
+  /* Modal */
+  .modal {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 680px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 32px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+
+  .modal::-webkit-scrollbar { width: 6px; }
+  .modal::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+  .modal-close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+  }
+  .modal-close:hover { background: #f0f0f0; }
+  .modal-close svg { width: 20px; height: 20px; color: #666; }
+
+  .modal-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+    padding-right: 40px;
+  }
+
+  .modal-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 28px;
+    line-height: 1.4;
+  }
+
+  /* Accordion sections */
+  .section {
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .section.active { border-color: #d0d0d0; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .section-header:hover { background: #fafafa; }
+  .section.completed .section-header:hover { background: transparent; }
+
+  .section-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+  }
+
+  .section-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s;
+  }
+
+  /* Checkmark */
+  .check-icon {
+    width: 28px;
+    height: 28px;
+    background: #34a853;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .check-icon svg { width: 16px; height: 16px; color: #fff; }
+  .section.completed .check-icon { display: flex; }
+  .section.completed .chevron-icon { display: none; }
+
+  .chevron-icon {
+    transition: transform 0.3s ease;
+  }
+  .section.active .chevron-icon { transform: rotate(180deg); }
+
+  .section-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+  }
+  .section.active .section-body {
+    max-height: 800px;
+    padding: 0 20px 20px;
+  }
+
+  .section.completed .section-body {
+    max-height: 0;
+    padding: 0 20px;
+  }
+
+  /* Divider inside sections */
+  .section-divider {
+    height: 1px;
+    background: #eee;
+    margin: 16px 0;
+  }
+
+  /* --- Section 1: Payment --- */
+  .payment-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .payment-label {
+    font-size: 14px;
+    color: #444;
+    font-weight: 500;
+  }
+
+  .payment-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 24px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .card-visa { background: #1a1f71; }
+  .card-mc { background: #eb001b; }
+  .card-amex { background: #006fcf; }
+
+  .spei-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: #e8f5e9;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #2e7d32;
+  }
+
+  /* Toggle */
+  .toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: #ccc;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .toggle-slider::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle input:checked + .toggle-slider { background: #34a853; }
+  .toggle input:checked + .toggle-slider::after { transform: translateX(20px); }
+
+  /* Radio options */
+  .radio-group { margin: 12px 0; }
+
+  .radio-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    cursor: pointer;
+  }
+
+  .radio-circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    transition: border-color 0.2s;
+  }
+  .radio-circle::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: transparent;
+    transition: background 0.2s;
+  }
+  .radio-option.selected .radio-circle {
+    border-color: #d32f2f;
+  }
+  .radio-option.selected .radio-circle::after {
+    background: #d32f2f;
+  }
+
+  .radio-content { flex: 1; }
+
+  .radio-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+  }
+
+  .badge-recommended {
+    font-size: 11px;
+    font-weight: 600;
+    color: #d32f2f;
+    border: 1px solid #f5c6c6;
+    border-radius: 4px;
+    padding: 2px 8px;
+    background: #fef2f2;
+  }
+
+  .radio-desc {
+    font-size: 13px;
+    color: #888;
+    margin-top: 2px;
+  }
+
+  .radio-price {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-top: 4px;
+  }
+
+  /* Checkbox */
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+  }
+
+  .custom-checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid #ccc;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .custom-checkbox.checked {
+    background: #d32f2f;
+    border-color: #d32f2f;
+  }
+  .custom-checkbox svg { width: 14px; height: 14px; color: #fff; opacity: 0; transition: opacity 0.2s; }
+  .custom-checkbox.checked svg { opacity: 1; }
+
+  .checkbox-label {
+    font-size: 13px;
+    color: #555;
+  }
+  .checkbox-label a {
+    color: #d32f2f;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  /* Buttons */
+  .btn-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .btn {
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .btn-cancel {
+    background: #fff;
+    border: 1px solid #ddd;
+    color: #555;
+  }
+  .btn-cancel:hover { background: #f5f5f5; }
+
+  .btn-save {
+    background: #d32f2f;
+    color: #fff;
+  }
+  .btn-save:hover { background: #b71c1c; }
+
+  /* --- Section 2: Policies --- */
+  .ai-banner {
+    background: #ecfdf5;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .ai-banner-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .ai-banner-text {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .ai-banner-title {
+    color: #16a34a;
+    font-weight: 600;
+  }
+  .ai-banner-desc {
+    color: #555;
+  }
+
+  .form-heading {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 16px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #333;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+  }
+  .form-group input:focus,
+  .form-group select:focus {
+    border-color: #999;
+  }
+
+  .form-group input::placeholder {
+    color: #bbb;
+  }
+
+  .phone-input {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .phone-prefix {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 10px;
+    background: #fafafa;
+    border-right: 1px solid #ddd;
+    font-size: 14px;
+    color: #555;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .phone-prefix .flag { font-size: 18px; }
+  .phone-input input {
+    border: none;
+    padding: 10px 12px;
+    flex: 1;
+    font-size: 14px;
+    outline: none;
+    border-radius: 0;
+  }
+
+  /* --- Section 3: Contact --- */
+  .info-note {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+
+  .char-count {
+    font-size: 12px;
+    color: #aaa;
+    text-align: right;
+    margin-top: -2px;
+  }
+
+  .field-hint {
+    font-size: 12px;
+    color: #aaa;
+    margin-top: -2px;
+  }
+
+  .full-width {
+    grid-column: 1 / -1;
+  }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .modal { animation: fadeIn 0.3s ease; }
+
+  /* Section completion animation */
+  .section.completing {
+    transition: all 0.3s ease;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .modal { padding: 24px 18px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .modal-title { font-size: 18px; }
+  }
+
+  /* =================== */
+  /* Wizard Modal (Modal 2) */
+  /* =================== */
+
+  .main-buttons {
+    display: flex;
+    gap: 16px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+  }
+
+  .main-btn {
+    padding: 14px 32px;
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transition: background 0.2s;
+  }
+  .main-btn:hover { background: #b71c1c; }
+
+  /* Wizard header */
+  .wz-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-right: 40px;
+  }
+
+  .wz-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #555;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-weight: 500;
+    padding: 4px 0;
+    transition: color 0.2s;
+  }
+  .wz-back:hover { color: #222; }
+  .wz-back svg { width: 18px; height: 18px; }
+
+  .wz-step-counter {
+    font-size: 14px;
+    color: #999;
+    font-weight: 500;
+  }
+
+  .wz-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 6px;
+  }
+
+  .wz-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 24px;
+    line-height: 1.4;
+  }
+
+  /* Menu items on landing page */
+  .wz-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .wz-menu-item:hover {
+    background: #fafafa;
+    border-color: #d0d0d0;
+  }
+  .wz-menu-item-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+    flex: 1;
+  }
+  .wz-menu-item .wz-menu-check {
+    display: none;
+    width: 24px;
+    height: 24px;
+    background: #34a853;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+  }
+  .wz-menu-item .wz-menu-check svg { width: 14px; height: 14px; color: #fff; }
+  .wz-menu-item.done .wz-menu-check { display: flex; }
+  .wz-menu-item.done .wz-chevron-right { display: none; }
+
+  .wz-chevron-right {
+    color: #bbb;
+    flex-shrink: 0;
+  }
+
+  /* Wizard page content */
+  .wz-page { display: none; }
+  .wz-page.active { display: block; }
+
+  /* Continuar button */
+  .btn-continue {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 24px;
+    transition: background 0.2s;
+  }
+  .btn-continue:hover { background: #b71c1c; }
+
+  /* Payment card inside wizard */
+  .wz-payment-card {
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+
+  .wz-payment-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .wz-payment-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .wz-payment-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  /* Separator for wizard */
+  .wz-sep {
+    height: 1px;
+    background: #eee;
+    margin: 14px 0;
+  }
+
+  @media (max-width: 600px) {
+    .main-buttons { flex-direction: column; }
+  }
+
+  /* ============================== */
+  /* Wizard + Preview Modal (Modal 3) */
+  /* ============================== */
+
+  .modal-wide {
+    max-width: 960px;
+  }
+
+  .wp-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 28px;
+    align-items: flex-start;
+  }
+
+  .wp-form { min-width: 0; }
+
+  /* Google preview card */
+  .gp-card {
+    background: #f8f9fa;
+    border: 1px solid #e8e8e8;
+    border-radius: 14px;
+    padding: 20px;
+    position: sticky;
+    top: 0;
+  }
+
+  .gp-header {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 14px;
+  }
+
+  .gp-google-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+  }
+
+  .gp-google-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .gp-row {
+    margin-bottom: 12px;
+  }
+
+  .gp-label {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 4px;
+  }
+
+  .gp-value {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+  }
+
+  .gp-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .gp-chip {
+    padding: 6px 14px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #444;
+    font-weight: 500;
+  }
+
+  .gp-divider {
+    height: 1px;
+    background: #e0e0e0;
+    margin: 14px 0;
+  }
+
+  /* Store profile */
+  .gp-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .gp-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #d32f2f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .gp-store-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .gp-store-url {
+    font-size: 12px;
+    color: #888;
+  }
+
+  .gp-summary {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 768px) {
+    .modal-wide { max-width: 680px; }
+    .wp-layout {
+      grid-template-columns: 1fr;
+    }
+    .gp-card { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <h2 class="modal-title" id="modalTitle">Prepara tu tienda para Google</h2>
+    <p class="modal-subtitle" id="modalSubtitle">Completa los siguientes requisitos para comenzar a sincronizar tus productos.</p>
+
+    <!-- Section 1: Método de pago -->
+    <div class="section" id="section1" data-section="1">
+      <div class="section-header" onclick="toggleSection(1)">
+        <div class="section-header-left">
+          <span>Activa un método de pago</span>
+        </div>
+        <div class="section-icon">
+          <div class="check-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <path d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <svg class="chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="payment-row">
+          <span class="payment-label">Tarjetas de crédito y débito</span>
+          <div class="payment-icons">
+            <span class="card-badge card-visa">VISA</span>
+            <span class="card-badge card-mc">MC</span>
+            <span class="card-badge card-amex">AMEX</span>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="radio-group">
+          <div class="radio-option selected" onclick="selectRadio(this)">
+            <div class="radio-circle"></div>
+            <div class="radio-content">
+              <div class="radio-title">
+                Con protección contracargos
+                <span class="badge-recommended">Recomendado</span>
+              </div>
+              <div class="radio-desc">Cobertura ante reclamo de cargos no reconocidos y fraudes.</div>
+              <div class="radio-price">4.5% + $1.00 MXN por transacción</div>
+            </div>
+          </div>
+          <div class="radio-option" onclick="selectRadio(this)">
+            <div class="radio-circle"></div>
+            <div class="radio-content">
+              <div class="radio-title">Sin protección contra contracargos</div>
+              <div class="radio-price">3.5% + $1.00 MXN por transacción</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="payment-row">
+          <span class="payment-label">SPEI</span>
+          <div class="payment-icons">
+            <span class="spei-badge">SPEI</span>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="radio-price" style="margin-top:4px;">3.30% + $5.00 por transacción</div>
+
+        <div class="checkbox-row">
+          <div class="custom-checkbox checked" onclick="toggleCheckbox(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <path d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <span class="checkbox-label">Aceptar los <a>Términos y Condiciones</a> de T1 Pagos.</span>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-cancel" onclick="cancelSection(1)">Cancelar</button>
+          <button class="btn btn-save" onclick="saveSection(1)">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Políticas -->
+    <div class="section" id="section2" data-section="2">
+      <div class="section-header" onclick="toggleSection(2)">
+        <div class="section-header-left">
+          <span>Añade la política de devoluciones y términos y condiciones</span>
+        </div>
+        <div class="section-icon">
+          <div class="check-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <path d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <svg class="chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="ai-banner">
+          <span class="ai-banner-icon">✨</span>
+          <div class="ai-banner-text">
+            <span class="ai-banner-title">Generación automática con IA.</span><br>
+            <span class="ai-banner-desc">Completa este formulario y nuestra IA generará automáticamente tu política personalizada.</span>
+          </div>
+        </div>
+
+        <div class="form-heading">Dirección fiscal</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Calle</label>
+            <input type="text" value="Av. Reforma">
+          </div>
+          <div class="form-group">
+            <label>Número exterior</label>
+            <input type="text" value="123">
+          </div>
+          <div class="form-group">
+            <label>Número interior</label>
+            <input type="text" value="Depto 5A">
+          </div>
+          <div class="form-group">
+            <label>Código postal</label>
+            <input type="text" value="12345">
+          </div>
+          <div class="form-group">
+            <label>Colonia</label>
+            <select>
+              <option selected>Del valle</option>
+              <option>Roma Norte</option>
+              <option>Condesa</option>
+              <option>Polanco</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Estado</label>
+            <input type="text" value="Ciudad de México">
+          </div>
+          <div class="form-group">
+            <label>Ciudad</label>
+            <input type="text" value="Ciudad de México">
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <div class="phone-input">
+              <div class="phone-prefix">
+                <span class="flag">🇲🇽</span>
+                <span>+52</span>
+              </div>
+              <input type="text" placeholder="Número celular">
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-cancel" onclick="cancelSection(2)">Cancelar</button>
+          <button class="btn btn-save" onclick="saveSection(2)">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Contacto -->
+    <div class="section" id="section3" data-section="3">
+      <div class="section-header" onclick="toggleSection(3)">
+        <div class="section-header-left">
+          <span>Ingresa información de contacto de tu tienda en línea</span>
+        </div>
+        <div class="section-icon">
+          <div class="check-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <path d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <svg class="chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="info-note">Esta información podría ser pública. No compartas datos personales.</p>
+
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label>Nombre de negocio</label>
+            <input type="text" value="Mi tienda" id="businessName" oninput="updateCharCount()">
+            <div style="display:flex;justify-content:space-between;">
+              <span class="field-hint">Aparece en tu sitio web</span>
+              <span class="char-count" id="charCount">9/40</span>
+            </div>
+          </div>
+          <div class="form-group full-width">
+            <label>Correo electrónico del negocio</label>
+            <input type="email" value="ventasonline@gmail.com">
+          </div>
+          <div class="form-group full-width">
+            <label>Teléfono del negocio</label>
+            <input type="tel" placeholder="">
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-cancel" onclick="cancelSection(3)">Cancelar</button>
+          <button class="btn btn-save" onclick="saveSection(3)">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main buttons -->
+<div class="main-buttons" id="mainButtons" style="display:none;">
+  <button class="main-btn" onclick="openModal1()">Setup Express (Acordeón)</button>
+  <button class="main-btn" onclick="openModal2()">Setup Express (Wizard)</button>
+  <button class="main-btn" onclick="openModal3()">Setup Express (Preview)</button>
+</div>
+
+<!-- ===================== -->
+<!-- WIZARD MODAL (Modal 2) -->
+<!-- ===================== -->
+<div class="overlay" id="overlay2" style="display:none;" onclick="if(event.target===this)closeModal2()">
+  <div class="modal" id="modal2" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal2()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <!-- PAGE 0: Landing / Menu -->
+    <div class="wz-page active" id="wzPage0">
+      <h2 class="modal-title">Prepara tu tienda para Google</h2>
+      <p class="modal-subtitle">Completa los siguientes requisitos para comenzar a sincronizar tus productos.</p>
+
+      <div class="wz-menu-item" id="wzMenuItem1" onclick="wzGoTo(1)">
+        <div class="wz-menu-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <span class="wz-menu-item-label">Activa un método de pago</span>
+        <svg class="wz-chevron-right" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="wz-menu-item" id="wzMenuItem2" onclick="wzGoTo(2)">
+        <div class="wz-menu-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <span class="wz-menu-item-label">Añade la política de devoluciones y términos y condiciones</span>
+        <svg class="wz-chevron-right" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="wz-menu-item" id="wzMenuItem3" onclick="wzGoTo(3)">
+        <div class="wz-menu-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <span class="wz-menu-item-label">Ingresa información de contacto de tu tienda en línea</span>
+        <svg class="wz-chevron-right" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- PAGE 1: Método de pago (1/3) -->
+    <div class="wz-page" id="wzPage1">
+      <div class="wz-header">
+        <button class="wz-back" onclick="wzGoTo(0)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          Atrás
+        </button>
+        <span class="wz-step-counter">1/3</span>
+      </div>
+      <h2 class="wz-title">Aceptar pagos con</h2>
+
+      <!-- Tarjetas -->
+      <div class="wz-payment-card">
+        <div class="wz-payment-header">
+          <div class="wz-payment-left">
+            <span class="wz-payment-name">Tarjetas de crédito y débito</span>
+            <span class="card-badge card-visa">VISA</span>
+            <span class="card-badge card-mc">MC</span>
+            <span class="card-badge card-amex">AMEX</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="radio-group" style="margin-bottom:0;">
+          <div class="radio-option selected" onclick="selectRadio(this)">
+            <div class="radio-circle"></div>
+            <div class="radio-content">
+              <div class="radio-title">
+                Con protección contracargos
+                <span class="badge-recommended">Recomendado</span>
+              </div>
+              <div class="radio-desc">Cobertura ante reclamo de cargos no reconocidos y fraudes.</div>
+              <div class="radio-price">4.5% + $1.00 MXN por transacción</div>
+            </div>
+          </div>
+          <div class="radio-option" onclick="selectRadio(this)">
+            <div class="radio-circle"></div>
+            <div class="radio-content">
+              <div class="radio-title">Sin protección contra contracargos</div>
+              <div class="radio-price">3.5% + $1.00 MXN por transacción</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPEI -->
+      <div class="wz-payment-card">
+        <div class="wz-payment-header">
+          <div class="wz-payment-left">
+            <span class="wz-payment-name">SPEI</span>
+            <span class="spei-badge">SPEI</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="radio-price" style="margin-top:8px;">3.30% + $5.00 por transacción</div>
+      </div>
+
+      <div class="checkbox-row" style="border-top:none; margin-top:8px; padding-top:0;">
+        <div class="custom-checkbox checked" onclick="toggleCheckbox(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <span class="checkbox-label">Aceptar los <a>Términos y Condiciones</a> de T1 Pagos.</span>
+      </div>
+
+      <button class="btn-continue" onclick="wzContinue(1)">Continuar</button>
+    </div>
+
+    <!-- PAGE 2: Políticas (2/3) -->
+    <div class="wz-page" id="wzPage2">
+      <div class="wz-header">
+        <button class="wz-back" onclick="wzGoTo(0)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          Atrás
+        </button>
+        <span class="wz-step-counter">2/3</span>
+      </div>
+      <h2 class="wz-title">Añade las políticas</h2>
+
+      <div class="ai-banner">
+        <span class="ai-banner-icon">✨</span>
+        <div class="ai-banner-text">
+          <span class="ai-banner-title">Generación automática con IA.</span><br>
+          <span class="ai-banner-desc">Completa este formulario y nuestra IA generará automáticamente tu política personalizada.</span>
+        </div>
+      </div>
+
+      <div class="form-heading">Dirección fiscal</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Calle</label>
+          <input type="text" value="Av. Reforma">
+        </div>
+        <div class="form-group">
+          <label>Número exterior</label>
+          <input type="text" value="123">
+        </div>
+        <div class="form-group">
+          <label>Número interior</label>
+          <input type="text" value="Depto 5A">
+        </div>
+        <div class="form-group">
+          <label>Código postal</label>
+          <input type="text" value="12345">
+        </div>
+        <div class="form-group">
+          <label>Colonia</label>
+          <select>
+            <option selected>Del valle</option>
+            <option>Roma Norte</option>
+            <option>Condesa</option>
+            <option>Polanco</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Estado</label>
+          <input type="text" value="Ciudad de México">
+        </div>
+        <div class="form-group">
+          <label>Ciudad</label>
+          <input type="text" value="Ciudad de México">
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <div class="phone-input">
+            <div class="phone-prefix">
+              <span class="flag">🇲🇽</span>
+              <span>+52</span>
+            </div>
+            <input type="text" placeholder="Número celular">
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-continue" onclick="wzContinue(2)">Continuar</button>
+    </div>
+
+    <!-- PAGE 3: Contacto (3/3) -->
+    <div class="wz-page" id="wzPage3">
+      <div class="wz-header">
+        <button class="wz-back" onclick="wzGoTo(0)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          Atrás
+        </button>
+        <span class="wz-step-counter">3/3</span>
+      </div>
+      <h2 class="wz-title">Ingresa información de contacto</h2>
+      <p class="info-note">Esta información podría ser pública. No compartas datos personales.</p>
+
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>Nombre de negocio</label>
+          <input type="text" value="Mi tienda" id="wzBusinessName" oninput="wzUpdateCharCount()">
+          <div style="display:flex;justify-content:space-between;">
+            <span class="field-hint">Aparece en tu sitio web</span>
+            <span class="char-count" id="wzCharCount">9/40</span>
+          </div>
+        </div>
+        <div class="form-group full-width">
+          <label>Correo electrónico del negocio</label>
+          <input type="email" value="ventasonline@gmail.com">
+        </div>
+        <div class="form-group full-width">
+          <label>Teléfono del negocio</label>
+          <div class="phone-input">
+            <div class="phone-prefix">
+              <span class="flag">🇲🇽</span>
+              <span>+52</span>
+            </div>
+            <input type="text" placeholder="Número celular">
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-continue" onclick="wzContinue(3)">Continuar</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================================= -->
+<!-- WIZARD + PREVIEW MODAL (Modal 3) -->
+<!-- ================================= -->
+<div class="overlay" id="overlay3" style="display:none;" onclick="if(event.target===this)closeModal3()">
+  <div class="modal modal-wide" id="modal3" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal3()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <!-- PAGE 0: Landing -->
+    <div class="wz-page active" id="wpPage0">
+      <h2 class="modal-title">Prepara tu tienda para Google</h2>
+      <p class="modal-subtitle">Completa los siguientes requisitos para comenzar a sincronizar tus productos.</p>
+
+      <div class="wz-menu-item" id="wpMenuItem1" onclick="wpGoTo(1)">
+        <div class="wz-menu-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <span class="wz-menu-item-label">Activa un método de pago</span>
+        <svg class="wz-chevron-right" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="wz-menu-item" id="wpMenuItem2" onclick="wpGoTo(2)">
+        <div class="wz-menu-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <span class="wz-menu-item-label">Añade la política de devoluciones y términos y condiciones</span>
+        <svg class="wz-chevron-right" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="wz-menu-item" id="wpMenuItem3" onclick="wpGoTo(3)">
+        <div class="wz-menu-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <span class="wz-menu-item-label">Ingresa información de contacto de tu tienda en línea</span>
+        <svg class="wz-chevron-right" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- PAGE 1: Método de pago (1/3) -->
+    <div class="wz-page" id="wpPage1">
+      <div class="wz-header">
+        <button class="wz-back" onclick="wpGoTo(0)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          Atrás
+        </button>
+        <span class="wz-step-counter">1/3</span>
+      </div>
+      <h2 class="wz-title" style="text-align:center;margin-bottom:20px;">Aceptar pagos con</h2>
+
+      <div class="wp-layout">
+        <div class="wp-form">
+          <div class="wz-payment-card">
+            <div class="wz-payment-header">
+              <div class="wz-payment-left">
+                <span class="wz-payment-name">Tarjetas de crédito y débito</span>
+                <span class="card-badge card-visa">VISA</span>
+                <span class="card-badge card-mc">MC</span>
+                <span class="card-badge card-amex">AMEX</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="radio-group" style="margin-bottom:0;">
+              <div class="radio-option selected" onclick="selectRadio(this)">
+                <div class="radio-circle"></div>
+                <div class="radio-content">
+                  <div class="radio-title">
+                    Con protección contracargos
+                    <span class="badge-recommended">Recomendado</span>
+                  </div>
+                  <div class="radio-desc">Cobertura ante reclamo de cargos no reconocidos y fraudes.</div>
+                  <div class="radio-price">4.5% + $1.00 MXN por transacción</div>
+                </div>
+              </div>
+              <div class="radio-option" onclick="selectRadio(this)">
+                <div class="radio-circle"></div>
+                <div class="radio-content">
+                  <div class="radio-title">Sin protección contra contracargos</div>
+                  <div class="radio-price">3.5% + $1.00 MXN por transacción</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wz-payment-card">
+            <div class="wz-payment-header">
+              <div class="wz-payment-left">
+                <span class="wz-payment-name">SPEI</span>
+                <span class="spei-badge">SPEI</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="radio-price" style="margin-top:8px;">3.30% + $5.00 por transacción</div>
+          </div>
+
+          <div class="checkbox-row" style="border-top:none; margin-top:8px; padding-top:0;">
+            <div class="custom-checkbox checked" onclick="toggleCheckbox(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <span class="checkbox-label">Aceptar los <a>Términos y Condiciones</a> de T1 Pagos.</span>
+          </div>
+          <button class="btn-continue" onclick="wpContinue(1)">Continuar</button>
+        </div>
+
+        <!-- Google Preview -->
+        <div class="gp-card">
+          <div class="gp-header">Método de pago</div>
+          <div class="gp-google-label">
+            <div class="gp-google-icon">
+              <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#4285F4" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#34A853" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 019.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.9 23.9 0 000 24c0 3.77.9 7.35 2.56 10.52l7.97-5.93z"/><path fill="#EA4335" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 5.93C6.51 42.62 14.62 48 24 48z"/></svg>
+            </div>
+            CÓMO SE VERÁ EN GOOGLE
+          </div>
+          <div class="gp-row">
+            <div class="gp-label">Moneda</div>
+            <div class="gp-value">MXN</div>
+          </div>
+          <div class="gp-divider"></div>
+          <div class="gp-row">
+            <div class="gp-label">Forma de pago</div>
+            <div class="gp-chips">
+              <span class="gp-chip">Tarjeta de crédito</span>
+              <span class="gp-chip">Tarjeta de débito</span>
+              <span class="gp-chip">SPEI</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 2: Políticas (2/3) -->
+    <div class="wz-page" id="wpPage2">
+      <div class="wz-header">
+        <button class="wz-back" onclick="wpGoTo(0)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          Atrás
+        </button>
+        <span class="wz-step-counter">2/3</span>
+      </div>
+      <h2 class="wz-title" style="text-align:center;margin-bottom:20px;">Añade las políticas</h2>
+
+      <div class="wp-layout">
+        <div class="wp-form">
+          <div class="ai-banner">
+            <span class="ai-banner-icon">✨</span>
+            <div class="ai-banner-text">
+              <span class="ai-banner-title">Generación automática con IA.</span><br>
+              <span class="ai-banner-desc">Completa este formulario y nuestra IA generará automáticamente tu política personalizada.</span>
+            </div>
+          </div>
+
+          <div class="form-heading">Dirección fiscal</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Calle</label>
+              <input type="text" value="Av. Reforma">
+            </div>
+            <div class="form-group">
+              <label>Número exterior</label>
+              <input type="text" value="123">
+            </div>
+            <div class="form-group">
+              <label>Número interior</label>
+              <input type="text" value="Depto 5A">
+            </div>
+            <div class="form-group">
+              <label>Código postal</label>
+              <input type="text" value="12345">
+            </div>
+            <div class="form-group">
+              <label>Colonia</label>
+              <select>
+                <option selected>Del valle</option>
+                <option>Roma Norte</option>
+                <option>Condesa</option>
+                <option>Polanco</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Estado</label>
+              <input type="text" value="Ciudad de México">
+            </div>
+            <div class="form-group">
+              <label>Ciudad</label>
+              <input type="text" value="Ciudad de México">
+            </div>
+            <div class="form-group">
+              <label>Teléfono</label>
+              <div class="phone-input">
+                <div class="phone-prefix">
+                  <span class="flag">🇲🇽</span>
+                  <span>+52</span>
+                </div>
+                <input type="text" placeholder="Número celular">
+              </div>
+            </div>
+          </div>
+          <button class="btn-continue" onclick="wpContinue(2)">Continuar</button>
+        </div>
+
+        <!-- Google Preview -->
+        <div class="gp-card">
+          <div class="gp-header">Políticas</div>
+          <div class="gp-google-label">
+            <div class="gp-google-icon">
+              <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#4285F4" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#34A853" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 019.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.9 23.9 0 000 24c0 3.77.9 7.35 2.56 10.52l7.97-5.93z"/><path fill="#EA4335" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 5.93C6.51 42.62 14.62 48 24 48z"/></svg>
+            </div>
+            INFORMACIÓN VISIBLE EN GOOGLE
+          </div>
+          <div class="gp-row">
+            <div class="gp-label">Plazo</div>
+            <div class="gp-value">30 días</div>
+          </div>
+          <div class="gp-divider"></div>
+          <div class="gp-row">
+            <div class="gp-label">Envío de devolución</div>
+            <div class="gp-value">Gratis</div>
+          </div>
+          <div class="gp-divider"></div>
+          <div class="gp-row">
+            <div class="gp-label">Resumen</div>
+            <div class="gp-summary">Aceptamos devoluciones dentro de 30 días a partir de la fecha de entrega. Los productos deben estar sin usar y en su empaque original.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 3: Contacto (3/3) -->
+    <div class="wz-page" id="wpPage3">
+      <div class="wz-header">
+        <button class="wz-back" onclick="wpGoTo(0)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          Atrás
+        </button>
+        <span class="wz-step-counter">3/3</span>
+      </div>
+      <h2 class="wz-title" style="text-align:center;margin-bottom:20px;">Ingresa información de contacto</h2>
+
+      <div class="wp-layout">
+        <div class="wp-form">
+          <p class="info-note">Esta información podría ser pública. No compartas datos personales.</p>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label>Nombre de negocio</label>
+              <input type="text" value="Chicos Olé" id="wpBusinessName" oninput="wpUpdateCharCount()">
+              <div style="display:flex;justify-content:space-between;">
+                <span class="field-hint">Aparece en tu sitio web</span>
+                <span class="char-count" id="wpCharCount">10/40</span>
+              </div>
+            </div>
+            <div class="form-group full-width">
+              <label>Correo electrónico del negocio</label>
+              <input type="email" value="ventasonline@gmail.com">
+            </div>
+            <div class="form-group full-width">
+              <label>Teléfono del negocio</label>
+              <div class="phone-input">
+                <div class="phone-prefix">
+                  <span class="flag">🇲🇽</span>
+                  <span>+52</span>
+                </div>
+                <input type="text" value="5511327620">
+              </div>
+            </div>
+          </div>
+          <button class="btn-continue" onclick="wpContinue(3)">Continuar</button>
+        </div>
+
+        <!-- Google Preview -->
+        <div class="gp-card">
+          <div class="gp-header">Información de contacto</div>
+          <div class="gp-google-label">
+            <div class="gp-google-icon">
+              <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#4285F4" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#34A853" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 019.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.9 23.9 0 000 24c0 3.77.9 7.35 2.56 10.52l7.97-5.93z"/><path fill="#EA4335" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 5.93C6.51 42.62 14.62 48 24 48z"/></svg>
+            </div>
+            PERFIL DE TU TIENDA EN GOOGLE
+          </div>
+          <div class="gp-profile">
+            <div class="gp-avatar">CO</div>
+            <div>
+              <div class="gp-store-name">Chicos Olé</div>
+              <div class="gp-store-url">www.chicosole.com</div>
+            </div>
+          </div>
+          <div class="gp-divider"></div>
+          <div class="gp-row">
+            <div class="gp-label">Teléfono</div>
+            <div class="gp-value">+52 5511327620</div>
+          </div>
+          <div class="gp-divider"></div>
+          <div class="gp-row">
+            <div class="gp-label">Correo</div>
+            <div class="gp-value">ventasonline@gmail.com</div>
+          </div>
+          <div class="gp-divider"></div>
+          <div class="gp-row">
+            <div class="gp-label">País</div>
+            <div class="gp-value">México</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const sections = { 1: false, 2: false, 3: false };
+  const completed = { 1: false, 2: false, 3: false };
+  let activeSection = null;
+  let isInitialState = true;
+
+  function updateModalHeader() {
+    const title = document.getElementById('modalTitle');
+    const subtitle = document.getElementById('modalSubtitle');
+    if (isInitialState) {
+      title.textContent = 'Prepara tu tienda para Google';
+      subtitle.textContent = 'Completa los siguientes requisitos para comenzar a sincronizar tus productos.';
+    } else {
+      title.textContent = 'Completa los siguientes pasos';
+      subtitle.textContent = 'Completa los requisitos de Google para activar la integración.';
+    }
+  }
+
+  function toggleSection(num) {
+    if (completed[num]) return;
+
+    const section = document.getElementById('section' + num);
+
+    if (activeSection === num) {
+      // Close current
+      section.classList.remove('active');
+      sections[num] = false;
+      activeSection = null;
+    } else {
+      // Close any open section
+      if (activeSection !== null) {
+        const prev = document.getElementById('section' + activeSection);
+        prev.classList.remove('active');
+        sections[activeSection] = false;
+      }
+      // Open new
+      section.classList.add('active');
+      sections[num] = true;
+      activeSection = num;
+
+      if (isInitialState) {
+        isInitialState = false;
+        updateModalHeader();
+      }
+    }
+  }
+
+  function saveSection(num) {
+    const section = document.getElementById('section' + num);
+    completed[num] = true;
+    section.classList.remove('active');
+    section.classList.add('completed');
+    sections[num] = false;
+    activeSection = null;
+
+    // Auto-open next incomplete section
+    for (let i = 1; i <= 3; i++) {
+      if (!completed[i]) {
+        setTimeout(() => toggleSection(i), 350);
+        break;
+      }
+    }
+
+    // Check if all done
+    if (completed[1] && completed[2] && completed[3]) {
+      setTimeout(() => {
+        alert('¡Configuración completada! Tu tienda está lista para Google.');
+      }, 400);
+    }
+  }
+
+  function cancelSection(num) {
+    const section = document.getElementById('section' + num);
+    section.classList.remove('active');
+    sections[num] = false;
+    activeSection = null;
+  }
+
+  function selectRadio(el) {
+    const group = el.parentElement;
+    group.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function toggleCheckbox(el) {
+    el.classList.toggle('checked');
+  }
+
+  function updateCharCount() {
+    const input = document.getElementById('businessName');
+    const count = document.getElementById('charCount');
+    count.textContent = input.value.length + '/40';
+  }
+
+  function showMainButtons() {
+    document.getElementById('mainButtons').style.display = 'flex';
+  }
+
+  function hideMainButtons() {
+    document.getElementById('mainButtons').style.display = 'none';
+  }
+
+  function closeModal() {
+    document.getElementById('overlay').style.display = 'none';
+    showMainButtons();
+  }
+
+  function openModal1() {
+    hideMainButtons();
+    for (let i = 1; i <= 3; i++) {
+      const sec = document.getElementById('section' + i);
+      sec.classList.remove('active', 'completed');
+      completed[i] = false;
+      sections[i] = false;
+    }
+    activeSection = null;
+    isInitialState = true;
+    updateModalHeader();
+    document.getElementById('overlay').style.display = 'flex';
+  }
+
+  // =====================
+  // WIZARD MODAL (Modal 2)
+  // =====================
+  const wzCompleted = { 1: false, 2: false, 3: false };
+
+  function openModal2() {
+    hideMainButtons();
+    wzCompleted[1] = false;
+    wzCompleted[2] = false;
+    wzCompleted[3] = false;
+    document.querySelectorAll('.wz-menu-item').forEach(el => el.classList.remove('done'));
+    wzGoTo(0);
+    document.getElementById('overlay2').style.display = 'flex';
+  }
+
+  function closeModal2() {
+    document.getElementById('overlay2').style.display = 'none';
+    showMainButtons();
+  }
+
+  function wzGoTo(page) {
+    document.querySelectorAll('#modal2 .wz-page').forEach(p => p.classList.remove('active'));
+    document.getElementById('wzPage' + page).classList.add('active');
+    document.getElementById('modal2').scrollTop = 0;
+  }
+
+  function wzContinue(step) {
+    wzCompleted[step] = true;
+    const item = document.getElementById('wzMenuItem' + step);
+    item.classList.add('done');
+    wzGoTo(0);
+
+    if (wzCompleted[1] && wzCompleted[2] && wzCompleted[3]) {
+      setTimeout(() => {
+        alert('¡Configuración completada! Tu tienda está lista para Google.');
+        closeModal2();
+      }, 300);
+    }
+  }
+
+  function wzUpdateCharCount() {
+    const input = document.getElementById('wzBusinessName');
+    const count = document.getElementById('wzCharCount');
+    count.textContent = input.value.length + '/40';
+  }
+
+  // ================================
+  // WIZARD + PREVIEW MODAL (Modal 3)
+  // ================================
+  const wpCompleted = { 1: false, 2: false, 3: false };
+
+  function openModal3() {
+    hideMainButtons();
+    wpCompleted[1] = false;
+    wpCompleted[2] = false;
+    wpCompleted[3] = false;
+    document.querySelectorAll('#modal3 .wz-menu-item').forEach(el => el.classList.remove('done'));
+    wpGoTo(0);
+    document.getElementById('overlay3').style.display = 'flex';
+  }
+
+  function closeModal3() {
+    document.getElementById('overlay3').style.display = 'none';
+    showMainButtons();
+  }
+
+  function wpGoTo(page) {
+    document.querySelectorAll('#modal3 .wz-page').forEach(p => p.classList.remove('active'));
+    document.getElementById('wpPage' + page).classList.add('active');
+    document.getElementById('modal3').scrollTop = 0;
+  }
+
+  function wpContinue(step) {
+    wpCompleted[step] = true;
+    document.getElementById('wpMenuItem' + step).classList.add('done');
+    wpGoTo(0);
+
+    if (wpCompleted[1] && wpCompleted[2] && wpCompleted[3]) {
+      setTimeout(() => {
+        alert('¡Configuración completada! Tu tienda está lista para Google.');
+        closeModal3();
+      }, 300);
+    }
+  }
+
+  function wpUpdateCharCount() {
+    const input = document.getElementById('wpBusinessName');
+    const count = document.getElementById('wpCharCount');
+    count.textContent = input.value.length + '/40';
+  }
+</script>
+
+</body>
+</html>
