@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Merchant Center - T1tienda</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f3f4f6;
+      color: #1f2937;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ========== SIDEBAR ========== */
+    .sidebar {
+      width: 250px;
+      background: #fff;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 10;
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      padding: 20px 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .sidebar-logo .t1 { color: #dc2626; }
+    .sidebar-logo .tienda { color: #1f2937; }
+
+    .store-selector {
+      margin: 0 12px 16px;
+      padding: 10px 12px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .store-selector .flag { font-size: 16px; }
+    .store-selector .store-name { flex: 1; font-weight: 500; }
+    .store-selector .chevron { font-size: 18px; color: #9ca3af; }
+
+    .nav-menu {
+      list-style: none;
+      padding: 0 8px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #4b5563;
+      gap: 10px;
+      margin-bottom: 2px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .nav-item:hover { background: #f3f4f6; }
+    .nav-item .material-icons-outlined { font-size: 20px; color: #6b7280; }
+    .nav-item .nav-label { flex: 1; }
+    .nav-item .chevron { font-size: 18px; color: #9ca3af; transition: transform 0.2s; }
+    .nav-item .chevron.open { transform: rotate(180deg); }
+
+    .nav-section { margin-bottom: 2px; }
+    .nav-sub-menu { list-style: none; padding-left: 0; }
+
+    .nav-sub-item {
+      display: flex;
+      align-items: center;
+      padding: 9px 12px 9px 46px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #4b5563;
+      margin-bottom: 1px;
+      transition: background 0.15s;
+    }
+
+    .nav-sub-item:hover { background: #f3f4f6; }
+
+    .nav-sub-item.active {
+      background: #fef2f2;
+      color: #dc2626;
+      font-weight: 600;
+    }
+
+    .nav-badge { font-size: 11px; margin-left: 4px; }
+
+    /* ========== TOP HEADER ========== */
+    .main-wrapper {
+      margin-left: 250px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .top-header {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+    }
+
+    .header-link {
+      font-size: 13px;
+      color: #6b7280;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .header-link:hover { color: #374151; }
+
+    .header-icon-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: none;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #6b7280;
+      position: relative;
+      transition: background 0.15s;
+    }
+
+    .header-icon-btn:hover { background: #f3f4f6; }
+    .header-icon-btn .material-icons-outlined { font-size: 22px; }
+
+    .notification-badge {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: #dc2626;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+      line-height: 14px;
+    }
+
+    .header-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #e0e7ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #4338ca;
+      cursor: pointer;
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 24px;
+      background: #e5e7eb;
+    }
+
+    /* ========== MAIN CONTENT ========== */
+    .main-content {
+      padding: 32px 36px;
+      flex: 1;
+      background: #ffffff;
+    }
+
+    /* Back link */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: #6b7280;
+      text-decoration: none;
+      margin-bottom: 28px;
+      transition: color 0.15s;
+    }
+
+    .back-link:hover {
+      color: #374151;
+    }
+
+    .back-link .material-icons-outlined {
+      font-size: 20px;
+    }
+
+    /* ========== HERO SECTION ========== */
+    .hero-section {
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+      margin-bottom: 40px;
+    }
+
+    /* Video player */
+    .video-container {
+      flex: 1;
+      max-width: 480px;
+    }
+
+    .video-player {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      background: #1f2937;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .video-player .play-btn {
+      width: 60px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+      transition: background 0.2s;
+    }
+
+    .video-player:hover .play-btn {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .play-btn .material-icons-outlined {
+      font-size: 32px;
+      color: #fff;
+      margin-left: 3px;
+    }
+
+    .video-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .video-label .material-icons-outlined {
+      font-size: 16px;
+    }
+
+    /* Info panel */
+    .info-panel {
+      flex: 1;
+      max-width: 440px;
+      padding-top: 4px;
+    }
+
+    .info-logo {
+      width: 56px;
+      height: 56px;
+      margin-bottom: 18px;
+    }
+
+    .info-logo svg {
+      width: 56px;
+      height: 56px;
+    }
+
+    .info-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+
+    .info-subtitle {
+      font-size: 15px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 12px;
+    }
+
+    .info-description {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .btn-connect {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 32px;
+      background: #dc2626;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-connect:hover {
+      background: #b91c1c;
+    }
+
+    /* ========== DIVIDER ========== */
+    .section-divider {
+      border: none;
+      border-top: 1px solid #e5e7eb;
+      margin-bottom: 32px;
+    }
+
+    /* ========== FEATURES SECTION ========== */
+    .features-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 24px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+
+    .feature-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .feature-image {
+      width: 100%;
+      height: 160px;
+      background: #f0fdf4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-image.blue-bg {
+      background: #eff6ff;
+    }
+
+    .feature-image.amber-bg {
+      background: #fefce8;
+    }
+
+    .feature-illustration {
+      width: 80%;
+      height: 80%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .feature-body {
+      padding: 20px;
+    }
+
+    .feature-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+
+    .feature-desc {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+
+    /* Illustration styles */
+    .illust-search {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .illust-search .browser-bar {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      height: 36px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+    }
+
+    .illust-search .search-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .illust-search .dot-red { background: #ef4444; }
+    .illust-search .dot-yellow { background: #f59e0b; }
+    .illust-search .dot-green { background: #22c55e; }
+
+    .illust-search .search-text {
+      flex: 1;
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+    }
+
+    .illust-search .product-cards {
+      position: absolute;
+      bottom: 16px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .illust-search .mini-card {
+      flex: 1;
+      height: 48px;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      padding: 6px;
+      gap: 6px;
+    }
+
+    .illust-search .mini-card .thumb {
+      width: 36px;
+      height: 36px;
+      background: #dbeafe;
+      border-radius: 4px;
+    }
+
+    .illust-search .mini-card .lines {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .illust-search .mini-card .line {
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 2px;
+    }
+
+    .illust-search .mini-card .line.short {
+      width: 60%;
+    }
+
+    /* Chart illustration */
+    .illust-chart {
+      width: 80%;
+      height: 80%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 12px;
+      padding-bottom: 8px;
+    }
+
+    .illust-chart .bar {
+      width: 28px;
+      border-radius: 4px 4px 0 0;
+      transition: height 0.3s;
+    }
+
+    /* Tags illustration */
+    .illust-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .illust-tags .tag {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #374151;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .illust-tags .tag .material-icons-outlined {
+      font-size: 14px;
+    }
+
+    /* ========== MODAL OVERLAY ========== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-dialog {
+      background: #fff;
+      border-radius: 16px;
+      width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    .modal-header {
+      padding: 28px 28px 0;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: #f3f4f6;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #6b7280;
+      transition: background 0.15s;
+    }
+
+    .modal-close:hover {
+      background: #e5e7eb;
+    }
+
+    .modal-close .material-icons-outlined {
+      font-size: 20px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 6px;
+      padding-right: 40px;
+    }
+
+    .modal-subtitle {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .modal-body {
+      padding: 0 28px 28px;
+    }
+
+    /* ========== ACCORDION ========== */
+    .accordion-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      display: flex;
+      align-items: center;
+      padding: 16px 18px;
+      cursor: pointer;
+      gap: 12px;
+      background: #fff;
+      transition: background 0.15s;
+    }
+
+    .accordion-header:hover {
+      background: #f9fafb;
+    }
+
+    .accordion-step {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b7280;
+      flex-shrink: 0;
+    }
+
+    .accordion-item.active .accordion-step {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .accordion-header-text {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .accordion-chevron {
+      font-size: 20px;
+      color: #9ca3af;
+      transition: transform 0.25s;
+    }
+
+    .accordion-item.active .accordion-chevron {
+      transform: rotate(180deg);
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .accordion-item.active .accordion-content {
+      max-height: 800px;
+    }
+
+    .accordion-inner {
+      padding: 0 18px 20px;
+    }
+
+    /* ========== PAYMENT METHOD ROW ========== */
+    .payment-method {
+      display: flex;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .payment-method:last-of-type {
+      border-bottom: none;
+    }
+
+    .payment-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .payment-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #111827;
+      margin-right: 8px;
+    }
+
+    .card-icon {
+      width: 36px;
+      height: 24px;
+      border-radius: 4px;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: 700;
+      background: #fff;
+    }
+
+    .card-icon.visa {
+      color: #1a1f71;
+      font-style: italic;
+      font-size: 10px;
+    }
+
+    .card-icon.mastercard {
+      background: linear-gradient(135deg, #eb001b 40%, #f79e1b 60%);
+      border: none;
+    }
+
+    .card-icon.mastercard::after {
+      content: '';
+      display: block;
+    }
+
+    .card-icon.amex {
+      color: #006fcf;
+      font-size: 7px;
+    }
+
+    /* Toggle switch */
+    .toggle {
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      background: #d1d5db;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toggle.on {
+      background: #dc2626;
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .toggle.on::after {
+      transform: translateX(20px);
+    }
+
+    /* ========== RADIO OPTIONS ========== */
+    .radio-options {
+      padding: 4px 0 8px;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .radio-option:hover {
+      background: #f9fafb;
+    }
+
+    .radio-option.selected {
+      border-color: #dc2626;
+      background: #fef2f2;
+    }
+
+    .radio-circle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #d1d5db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .radio-option.selected .radio-circle {
+      border-color: #dc2626;
+    }
+
+    .radio-circle-inner {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: transparent;
+    }
+
+    .radio-option.selected .radio-circle-inner {
+      background: #dc2626;
+    }
+
+    .radio-text {
+      flex: 1;
+    }
+
+    .radio-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .radio-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .badge-recommended {
+      padding: 2px 8px;
+      background: #dcfce7;
+      color: #16a34a;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 6px;
+    }
+
+    .radio-desc {
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    .radio-price {
+      font-size: 12px;
+      color: #374151;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* SPEI section */
+    .spei-info {
+      padding: 6px 0 0;
+    }
+
+    .spei-price {
+      font-size: 12px;
+      color: #374151;
+      font-weight: 500;
+      padding-left: 2px;
+    }
+
+    /* Checkbox */
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 0 16px;
+      border-top: 1px solid #f3f4f6;
+      margin-top: 8px;
+    }
+
+    .checkbox {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 2px solid #d1d5db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .checkbox.checked {
+      background: #dc2626;
+      border-color: #dc2626;
+    }
+
+    .checkbox .material-icons-outlined {
+      font-size: 16px;
+      color: #fff;
+      display: none;
+    }
+
+    .checkbox.checked .material-icons-outlined {
+      display: block;
+    }
+
+    .checkbox-label {
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .checkbox-label a {
+      color: #dc2626;
+      text-decoration: underline;
+    }
+
+    /* Modal buttons */
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding-top: 4px;
+    }
+
+    .btn-cancel {
+      padding: 10px 24px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      background: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-cancel:hover {
+      background: #f3f4f6;
+    }
+
+    .btn-save {
+      padding: 10px 28px;
+      border: none;
+      border-radius: 10px;
+      background: #dc2626;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-save:hover {
+      background: #b91c1c;
+    }
+
+    /* SPEI icon */
+    .spei-icon {
+      width: 36px;
+      height: 24px;
+      border-radius: 4px;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      font-size: 7px;
+      font-weight: 700;
+      color: #0e7c47;
+      letter-spacing: 0.5px;
+    }
+
+    /* ========== COMPLETED ACCORDION STATE ========== */
+    .accordion-item.completed .accordion-header-text {
+      color: #6b7280;
+    }
+
+    .accordion-check {
+      display: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #16a34a;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .accordion-check .material-icons-outlined {
+      font-size: 16px;
+      color: #fff;
+    }
+
+    .accordion-item.completed .accordion-check {
+      display: flex;
+    }
+
+    .accordion-item.completed .accordion-chevron {
+      display: none;
+    }
+
+    /* ========== AI BANNER ========== */
+    .ai-banner {
+      background: linear-gradient(135deg, #faf5ff, #fdf2f8);
+      border: 1px solid #e9d5ff;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .ai-banner-icon {
+      font-size: 20px;
+      color: #a855f7;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .ai-banner-text {
+      flex: 1;
+    }
+
+    .ai-banner-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #7c3aed;
+      margin-bottom: 3px;
+    }
+
+    .ai-banner-desc {
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    /* ========== FORM STYLES ========== */
+    .form-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 16px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .form-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #111827;
+      background: #fff;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .form-input:focus {
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+    }
+
+    .form-input::placeholder {
+      color: #9ca3af;
+    }
+
+    .form-select {
+      padding: 10px 32px 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #111827;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E") no-repeat right 12px center;
+      -webkit-appearance: none;
+      appearance: none;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .form-select:focus {
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+    }
+
+    .phone-input-group {
+      display: flex;
+      gap: 0;
+    }
+
+    .phone-prefix {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 10px;
+      border: 1px solid #d1d5db;
+      border-right: none;
+      border-radius: 8px 0 0 8px;
+      background: #f9fafb;
+      font-size: 13px;
+      color: #374151;
+      white-space: nowrap;
+    }
+
+    .phone-prefix .flag-sm {
+      font-size: 14px;
+    }
+
+    .phone-input-group .form-input {
+      border-radius: 0 8px 8px 0;
+      flex: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .hero-section {
+        flex-direction: column;
+      }
+      .video-container,
+      .info-panel {
+        max-width: 100%;
+      }
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main-wrapper { margin-left: 0; }
+      .features-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="t1">T1</span><span class="tienda">tienda</span>
+    </div>
+
+    <div class="store-selector">
+      <span class="material-icons-outlined" style="font-size:20px; color:#6b7280;">checkroom</span>
+      <span class="store-name">Chicos Ole</span>
+      <span class="material-icons-outlined chevron">expand_more</span>
+    </div>
+
+    <ul class="nav-menu">
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">home</span>
+          <span class="nav-label">Inicio</span>
+        </div>
+      </li>
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">inventory_2</span>
+          <span class="nav-label">Mis Pedidos</span>
+        </div>
+      </li>
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">sell</span>
+          <span class="nav-label">Mis Productos</span>
+          <span class="material-icons-outlined chevron">expand_more</span>
+        </div>
+      </li>
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">people</span>
+          <span class="nav-label">Clientes</span>
+        </div>
+      </li>
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">share</span>
+          <span class="nav-label">Canales de Venta</span>
+          <span class="material-icons-outlined chevron">expand_more</span>
+        </div>
+      </li>
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">local_offer</span>
+          <span class="nav-label">Descuentos</span>
+        </div>
+      </li>
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">campaign</span>
+          <span class="nav-label">Marketing</span>
+          <span class="material-icons-outlined chevron open">expand_more</span>
+        </div>
+        <ul class="nav-sub-menu">
+          <li class="nav-sub-item active"><a href="index.html" style="text-decoration:none;color:inherit;">Integraciones</a></li>
+        </ul>
+      </li>
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">storefront</span>
+          <span class="nav-label">Tienda en línea <span class="nav-badge">👑</span></span>
+          <span class="material-icons-outlined chevron">expand_more</span>
+        </div>
+      </li>
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">bar_chart</span>
+          <span class="nav-label">Reportes</span>
+        </div>
+      </li>
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">account_balance_wallet</span>
+          <span class="nav-label">Mis pagos</span>
+        </div>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+
+    <!-- TOP HEADER -->
+    <header class="top-header">
+      <a href="#" class="header-link">
+        <span class="material-icons-outlined" style="font-size:18px;">open_in_new</span>
+        Ver tienda
+      </a>
+      <div class="header-divider"></div>
+      <button class="header-icon-btn" title="QR">
+        <span class="material-icons-outlined">qr_code_2</span>
+      </button>
+      <button class="header-icon-btn" title="Ayuda">
+        <span class="material-icons-outlined">help_outline</span>
+      </button>
+      <button class="header-icon-btn" title="Notificaciones">
+        <span class="material-icons-outlined">notifications</span>
+        <span class="notification-badge">19</span>
+      </button>
+      <div class="header-avatar">JD</div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- Back link -->
+      <a href="index.html" class="back-link">
+        <span class="material-icons-outlined">arrow_back</span>
+        Conectar integración
+      </a>
+
+      <!-- Hero Section -->
+      <div class="hero-section">
+
+        <!-- Video -->
+        <div class="video-container">
+          <div class="video-player">
+            <div class="play-btn">
+              <span class="material-icons-outlined">play_arrow</span>
+            </div>
+          </div>
+          <div class="video-label">
+            <span class="material-icons-outlined">play_circle</span>
+            Ver cómo funciona · 2:30 min
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div class="info-panel">
+          <div class="info-logo">
+            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <rect x="8" y="20" width="32" height="22" rx="2" fill="#4285F4"/>
+              <path d="M8 20L14 6H34L40 20" fill="#FBBC04" stroke="#FBBC04" stroke-width="0.5"/>
+              <path d="M16 20V32" stroke="#fff" stroke-width="2"/>
+              <path d="M24 20V32" stroke="#fff" stroke-width="2"/>
+              <path d="M32 20V32" stroke="#fff" stroke-width="2"/>
+              <rect x="18" y="30" width="12" height="12" rx="1" fill="#34A853"/>
+            </svg>
+          </div>
+          <h1 class="info-title">Google Merchant Center</h1>
+          <p class="info-subtitle">Conecta tu tienda con millones de compradores</p>
+          <p class="info-description">
+            Muestra tus productos gratis en Google, sincronizándolos automáticamente desde tu tienda T1.
+          </p>
+          <button class="btn-connect">Conectar</button>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <hr class="section-divider">
+
+      <!-- Features -->
+      <h2 class="features-title">¿Qué puedes hacer?</h2>
+
+      <div class="features-grid">
+
+        <!-- Feature 1 -->
+        <div class="feature-card">
+          <div class="feature-image">
+            <div class="illust-search">
+              <div class="browser-bar">
+                <span class="search-dot dot-red"></span>
+                <span class="search-dot dot-yellow"></span>
+                <span class="search-dot dot-green"></span>
+                <span class="search-text"></span>
+              </div>
+              <div class="product-cards">
+                <div class="mini-card">
+                  <div class="thumb"></div>
+                  <div class="lines">
+                    <div class="line"></div>
+                    <div class="line short"></div>
+                  </div>
+                </div>
+                <div class="mini-card">
+                  <div class="thumb" style="background:#fde68a;"></div>
+                  <div class="lines">
+                    <div class="line"></div>
+                    <div class="line short"></div>
+                  </div>
+                </div>
+                <div class="mini-card">
+                  <div class="thumb" style="background:#bbf7d0;"></div>
+                  <div class="lines">
+                    <div class="line"></div>
+                    <div class="line short"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="feature-body">
+            <div class="feature-name">Vende a clientes cercanos en Google</div>
+            <p class="feature-desc">Tus productos aparecen en Google cuando las personas buscan lo que vendes. Sin subir nada manualmente.</p>
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card">
+          <div class="feature-image blue-bg">
+            <div class="illust-chart">
+              <div class="bar" style="height:40px; background:#93c5fd;"></div>
+              <div class="bar" style="height:70px; background:#60a5fa;"></div>
+              <div class="bar" style="height:55px; background:#3b82f6;"></div>
+              <div class="bar" style="height:90px; background:#2563eb;"></div>
+              <div class="bar" style="height:65px; background:#1d4ed8;"></div>
+              <div class="bar" style="height:100px; background:#1e40af;"></div>
+            </div>
+          </div>
+          <div class="feature-body">
+            <div class="feature-name">Analiza el rendimiento de tus productos</div>
+            <p class="feature-desc">Consulta impresiones y clics de tus productos en Google para entender cuáles generan más interés.</p>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card">
+          <div class="feature-image amber-bg">
+            <div class="illust-tags">
+              <div class="tag">
+                <span class="material-icons-outlined" style="color:#f59e0b;">sell</span>
+                Precio
+              </div>
+              <div class="tag">
+                <span class="material-icons-outlined" style="color:#22c55e;">check_circle</span>
+                Disponibilidad
+              </div>
+              <div class="tag">
+                <span class="material-icons-outlined" style="color:#3b82f6;">image</span>
+                Imágenes
+              </div>
+              <div class="tag">
+                <span class="material-icons-outlined" style="color:#8b5cf6;">description</span>
+                Descripción
+              </div>
+              <div class="tag">
+                <span class="material-icons-outlined" style="color:#ef4444;">category</span>
+                Categoría
+              </div>
+              <div class="tag">
+                <span class="material-icons-outlined" style="color:#06b6d4;">local_shipping</span>
+                Envío
+              </div>
+            </div>
+          </div>
+          <div class="feature-body">
+            <div class="feature-name">Mejora cómo se muestran tus productos</div>
+            <p class="feature-desc">Agrega información clave para que tus productos aparezcan más completos y tengan mayor visibilidad.</p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="connectModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <button class="modal-close" id="modalClose">
+          <span class="material-icons-outlined">close</span>
+        </button>
+        <h2 class="modal-title">Completa los siguientes pasos</h2>
+        <p class="modal-subtitle">Completa los requisitos de Google para activar la integración.</p>
+      </div>
+      <div class="modal-body">
+
+        <!-- Accordion 1: Método de pago (completado) -->
+        <div class="accordion-item completed" data-accordion="1">
+          <div class="accordion-header" onclick="toggleAccordion(1)">
+            <div class="accordion-header-text">Activa un método de pago</div>
+            <div class="accordion-check">
+              <span class="material-icons-outlined">check</span>
+            </div>
+            <span class="material-icons-outlined accordion-chevron">expand_more</span>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-inner">
+
+              <!-- Tarjetas de crédito y débito -->
+              <div class="payment-method">
+                <div class="payment-icons">
+                  <span class="payment-label">Tarjetas de crédito y débito</span>
+                  <div class="card-icon visa">VISA</div>
+                  <div class="card-icon mastercard"></div>
+                  <div class="card-icon amex">AMEX</div>
+                </div>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+
+              <!-- Radio options -->
+              <div class="radio-options">
+                <div class="radio-option selected" onclick="selectRadio(this)">
+                  <div class="radio-circle">
+                    <div class="radio-circle-inner"></div>
+                  </div>
+                  <div class="radio-text">
+                    <div class="radio-title-row">
+                      <span class="radio-title">Con protección contracargos</span>
+                      <span class="badge-recommended">Recomendado</span>
+                    </div>
+                    <div class="radio-desc">Cobertura ante reclamo de cargos no reconocidos y fraudes.</div>
+                    <div class="radio-price">4.5% + $1.00 MXN por transacción</div>
+                  </div>
+                </div>
+                <div class="radio-option" onclick="selectRadio(this)">
+                  <div class="radio-circle">
+                    <div class="radio-circle-inner"></div>
+                  </div>
+                  <div class="radio-text">
+                    <div class="radio-title-row">
+                      <span class="radio-title">Sin protección contra contracargos</span>
+                    </div>
+                    <div class="radio-price">3.5% + $1.00 MXN por transacción</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SPEI -->
+              <div class="payment-method">
+                <div class="payment-icons">
+                  <span class="payment-label">SPEI</span>
+                  <div class="spei-icon">SPEI</div>
+                </div>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="spei-info">
+                <div class="spei-price">3.30% + $5.00 por transacción</div>
+              </div>
+
+              <!-- Checkbox -->
+              <div class="checkbox-row">
+                <div class="checkbox checked" onclick="this.classList.toggle('checked')">
+                  <span class="material-icons-outlined">check</span>
+                </div>
+                <span class="checkbox-label">Aceptar los <a href="#">Términos y Condiciones</a> de T1 Pagos.</span>
+              </div>
+
+              <!-- Actions -->
+              <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="btn-save" onclick="saveSection(1)">Guardar</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion 2: Política de devoluciones (completado) -->
+        <div class="accordion-item completed" data-accordion="2">
+          <div class="accordion-header" onclick="toggleAccordion(2)">
+            <div class="accordion-header-text">Añade la política de devoluciones y términos y condiciones</div>
+            <div class="accordion-check">
+              <span class="material-icons-outlined">check</span>
+            </div>
+            <span class="material-icons-outlined accordion-chevron">expand_more</span>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-inner">
+
+              <!-- AI Banner -->
+              <div class="ai-banner">
+                <span class="material-icons-outlined ai-banner-icon">auto_awesome</span>
+                <div class="ai-banner-text">
+                  <div class="ai-banner-title">Generación automática con IA.</div>
+                  <div class="ai-banner-desc">Completa este formulario y nuestra IA generará automáticamente tu política personalizada.</div>
+                </div>
+              </div>
+
+              <!-- Form: Dirección fiscal -->
+              <div class="form-section-title">Dirección fiscal</div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Calle</label>
+                  <input type="text" class="form-input" value="Av. Reforma">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Número exterior</label>
+                  <input type="text" class="form-input" value="123">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Número interior</label>
+                  <input type="text" class="form-input" value="Depto 5A">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Código postal</label>
+                  <input type="text" class="form-input" value="12345">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Colonia</label>
+                  <select class="form-select">
+                    <option>Del Valle</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Estado</label>
+                  <input type="text" class="form-input" value="Ciudad de México" readonly style="background:#f9fafb;">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Ciudad</label>
+                  <input type="text" class="form-input" value="Ciudad de México" readonly style="background:#f9fafb;">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Teléfono</label>
+                  <div class="phone-input-group">
+                    <div class="phone-prefix">
+                      <span class="flag-sm">🇲🇽</span> +52
+                    </div>
+                    <input type="tel" class="form-input" placeholder="">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="modal-actions" style="margin-top:8px;">
+                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="btn-save" onclick="saveSection(2)">Guardar</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion 3: Información de contacto (abierto) -->
+        <div class="accordion-item active" data-accordion="3">
+          <div class="accordion-header" onclick="toggleAccordion(3)">
+            <div class="accordion-header-text">Ingresa información de contacto de tu tienda en línea</div>
+            <div class="accordion-check">
+              <span class="material-icons-outlined">check</span>
+            </div>
+            <span class="material-icons-outlined accordion-chevron">expand_more</span>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-inner">
+              <p style="font-size:13px; color:#6b7280; line-height:1.5; margin-bottom:20px;">Esta información podría ser pública. No compartas datos personales.</p>
+
+              <!-- Nombre de negocio -->
+              <div class="form-group" style="margin-bottom:4px;">
+                <label class="form-label">Nombre de negocio</label>
+                <input type="text" class="form-input" value="Mi tienda" maxlength="40" id="businessNameInput" oninput="updateCharCount()">
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
+                <span style="font-size:11px; color:#9ca3af;">Aparece en tu sitio web</span>
+                <span style="font-size:11px; color:#9ca3af;" id="charCount">9/40</span>
+              </div>
+
+              <!-- Correo electrónico -->
+              <div class="form-group" style="margin-bottom:16px;">
+                <label class="form-label">Correo electrónico del negocio</label>
+                <input type="email" class="form-input" value="ventasonline@gmail.com">
+              </div>
+
+              <!-- Teléfono del negocio -->
+              <div class="form-group" style="margin-bottom:8px;">
+                <label class="form-label">Teléfono del negocio</label>
+                <input type="tel" class="form-input" placeholder="">
+              </div>
+
+              <!-- Actions -->
+              <div class="modal-actions" style="margin-top:16px;">
+                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="btn-save" onclick="saveSection(3)">Guardar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Open modal — reset to initial state (step 1 open)
+    document.querySelector('.btn-connect').addEventListener('click', function() {
+      // Reset all accordions
+      document.querySelectorAll('.accordion-item').forEach(item => {
+        item.classList.remove('active', 'completed');
+      });
+      // Open step 1
+      document.querySelector('[data-accordion="1"]').classList.add('active');
+      document.getElementById('connectModal').classList.add('active');
+    });
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('connectModal').classList.remove('active');
+    }
+
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+
+    document.getElementById('connectModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    // Accordion toggle (click header)
+    function toggleAccordion(num) {
+      const items = document.querySelectorAll('.accordion-item');
+      items.forEach(item => {
+        const id = parseInt(item.getAttribute('data-accordion'));
+        if (id === num) {
+          // Only toggle if not completed, or allow re-open completed
+          item.classList.toggle('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    }
+
+    // Save section — mark completed, green check, open next
+    function saveSection(num) {
+      const current = document.querySelector('[data-accordion="' + num + '"]');
+      if (!current) return;
+
+      // 1. Close and mark as completed
+      current.classList.remove('active');
+      current.classList.add('completed');
+
+      // 2. After a short delay, open the next section
+      const nextNum = num + 1;
+      const next = document.querySelector('[data-accordion="' + nextNum + '"]');
+
+      if (next) {
+        setTimeout(function() {
+          next.classList.add('active');
+          // Scroll modal to show next section
+          next.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 350);
+      } else {
+        // All steps completed — show success
+        setTimeout(function() {
+          showCompletionMessage();
+        }, 400);
+      }
+    }
+
+    // Show completion message
+    function showCompletionMessage() {
+      // Check if all are completed
+      const items = document.querySelectorAll('.accordion-item');
+      let allCompleted = true;
+      items.forEach(item => {
+        if (!item.classList.contains('completed')) allCompleted = false;
+      });
+
+      if (allCompleted) {
+        // Create success overlay
+        const successDiv = document.createElement('div');
+        successDiv.id = 'successMessage';
+        successDiv.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:center;justify-content:center;';
+        successDiv.innerHTML = '<div style="background:#fff;border-radius:16px;padding:40px;text-align:center;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.15);">' +
+          '<div style="width:56px;height:56px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">' +
+          '<span class="material-icons-outlined" style="font-size:32px;color:#16a34a;">check_circle</span></div>' +
+          '<h3 style="font-size:18px;font-weight:700;color:#111827;margin-bottom:8px;">¡Configuración completada!</h3>' +
+          '<p style="font-size:14px;color:#6b7280;margin-bottom:24px;">Tu tienda está lista para Google Merchant Center.</p>' +
+          '<button onclick="closeSuccess()" style="padding:10px 28px;border:none;border-radius:10px;background:#dc2626;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">Aceptar</button>' +
+          '</div>';
+        document.body.appendChild(successDiv);
+      }
+    }
+
+    function closeSuccess() {
+      const msg = document.getElementById('successMessage');
+      if (msg) msg.remove();
+      closeModal();
+    }
+
+    // Radio select
+    function selectRadio(el) {
+      const parent = el.closest('.radio-options');
+      parent.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    // Character count
+    function updateCharCount() {
+      const input = document.getElementById('businessNameInput');
+      const count = document.getElementById('charCount');
+      if (input && count) {
+        count.textContent = input.value.length + '/40';
+      }
+    }
+  </script>
+
+</body>
+</html>
