@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integraciones - T1tienda</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f3f4f6;
+      color: #1f2937;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ========== SIDEBAR ========== */
+    .sidebar {
+      width: 250px;
+      background: #fff;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 10;
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      padding: 20px 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .sidebar-logo .t1 {
+      color: #dc2626;
+    }
+
+    .sidebar-logo .tienda {
+      color: #1f2937;
+    }
+
+    .store-selector {
+      margin: 0 12px 16px;
+      padding: 10px 12px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .store-selector .flag {
+      font-size: 16px;
+    }
+
+    .store-selector .store-name {
+      flex: 1;
+      font-weight: 500;
+    }
+
+    .store-selector .chevron {
+      font-size: 18px;
+      color: #9ca3af;
+    }
+
+    .nav-menu {
+      list-style: none;
+      padding: 0 8px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #4b5563;
+      gap: 10px;
+      margin-bottom: 2px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .nav-item:hover {
+      background: #f3f4f6;
+    }
+
+    .nav-item .material-icons-outlined {
+      font-size: 20px;
+      color: #6b7280;
+    }
+
+    .nav-item .nav-label {
+      flex: 1;
+    }
+
+    .nav-item .chevron {
+      font-size: 18px;
+      color: #9ca3af;
+      transition: transform 0.2s;
+    }
+
+    .nav-item .chevron.open {
+      transform: rotate(180deg);
+    }
+
+    .nav-section {
+      margin-bottom: 2px;
+    }
+
+    .nav-sub-menu {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .nav-sub-item {
+      display: flex;
+      align-items: center;
+      padding: 9px 12px 9px 46px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #4b5563;
+      margin-bottom: 1px;
+      transition: background 0.15s;
+    }
+
+    .nav-sub-item:hover {
+      background: #f3f4f6;
+    }
+
+    .nav-sub-item.active {
+      background: #fef2f2;
+      color: #dc2626;
+      font-weight: 600;
+    }
+
+    .nav-badge {
+      font-size: 11px;
+      margin-left: 4px;
+    }
+
+    /* ========== TOP HEADER ========== */
+    .main-wrapper {
+      margin-left: 250px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .top-header {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+    }
+
+    .header-link {
+      font-size: 13px;
+      color: #6b7280;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .header-link:hover {
+      color: #374151;
+    }
+
+    .header-icon-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: none;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #6b7280;
+      position: relative;
+      transition: background 0.15s;
+    }
+
+    .header-icon-btn:hover {
+      background: #f3f4f6;
+    }
+
+    .header-icon-btn .material-icons-outlined {
+      font-size: 22px;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: #dc2626;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+      line-height: 14px;
+    }
+
+    .header-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #e0e7ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #4338ca;
+      cursor: pointer;
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 24px;
+      background: #e5e7eb;
+    }
+
+    /* ========== MAIN CONTENT ========== */
+    .main-content {
+      padding: 32px 36px;
+      flex: 1;
+      background: #ffffff;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 6px;
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 24px;
+    }
+
+    .search-bar {
+      position: relative;
+      max-width: 400px;
+      margin-bottom: 28px;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 10px 14px 10px 40px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 14px;
+      background: #fff;
+      color: #374151;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .search-bar input::placeholder {
+      color: #9ca3af;
+    }
+
+    .search-bar input:focus {
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+    }
+
+    .search-bar .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      font-size: 20px;
+    }
+
+    /* ========== INTEGRATIONS GRID ========== */
+    .integrations-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 960px;
+    }
+
+    .integration-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .integration-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      border-color: #d1d5db;
+    }
+
+    .integration-logo {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .integration-logo img {
+      max-width: 48px;
+      max-height: 48px;
+      object-fit: contain;
+    }
+
+    .integration-logo svg {
+      width: 48px;
+      height: 48px;
+    }
+
+    .integration-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 16px;
+    }
+
+    .integration-connect {
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+
+    .integration-connect:hover {
+      color: #dc2626;
+    }
+
+    .integration-connect .arrow {
+      font-size: 18px;
+      transition: transform 0.15s;
+    }
+
+    .integration-connect:hover .arrow {
+      transform: translateX(3px);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .integrations-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+      .main-wrapper {
+        margin-left: 0;
+      }
+      .integrations-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="t1">T1</span><span class="tienda">tienda</span>
+    </div>
+
+    <div class="store-selector">
+      <span class="material-icons-outlined" style="font-size:20px; color:#6b7280;">checkroom</span>
+      <span class="store-name">Chicos Ole</span>
+      <span class="material-icons-outlined chevron">expand_more</span>
+    </div>
+
+    <ul class="nav-menu">
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">home</span>
+          <span class="nav-label">Inicio</span>
+        </div>
+      </li>
+
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">inventory_2</span>
+          <span class="nav-label">Mis Pedidos</span>
+        </div>
+      </li>
+
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">sell</span>
+          <span class="nav-label">Mis Productos</span>
+          <span class="material-icons-outlined chevron">expand_more</span>
+        </div>
+      </li>
+
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">people</span>
+          <span class="nav-label">Clientes</span>
+        </div>
+      </li>
+
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">share</span>
+          <span class="nav-label">Canales de Venta</span>
+          <span class="material-icons-outlined chevron">expand_more</span>
+        </div>
+      </li>
+
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">local_offer</span>
+          <span class="nav-label">Descuentos</span>
+        </div>
+      </li>
+
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">campaign</span>
+          <span class="nav-label">Marketing</span>
+          <span class="material-icons-outlined chevron open">expand_more</span>
+        </div>
+        <ul class="nav-sub-menu">
+          <li class="nav-sub-item active">Integraciones</li>
+        </ul>
+      </li>
+
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">storefront</span>
+          <span class="nav-label">Tienda en línea <span class="nav-badge">👑</span></span>
+          <span class="material-icons-outlined chevron">expand_more</span>
+        </div>
+      </li>
+
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">bar_chart</span>
+          <span class="nav-label">Reportes</span>
+        </div>
+      </li>
+
+      <li class="nav-section">
+        <div class="nav-item">
+          <span class="material-icons-outlined">account_balance_wallet</span>
+          <span class="nav-label">Mis pagos</span>
+        </div>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+
+    <!-- TOP HEADER -->
+    <header class="top-header">
+      <a href="#" class="header-link">
+        <span class="material-icons-outlined" style="font-size:18px;">open_in_new</span>
+        Ver tienda
+      </a>
+
+      <div class="header-divider"></div>
+
+      <button class="header-icon-btn" title="QR">
+        <span class="material-icons-outlined">qr_code_2</span>
+      </button>
+
+      <button class="header-icon-btn" title="Ayuda">
+        <span class="material-icons-outlined">help_outline</span>
+      </button>
+
+      <button class="header-icon-btn" title="Notificaciones">
+        <span class="material-icons-outlined">notifications</span>
+        <span class="notification-badge">19</span>
+      </button>
+
+      <div class="header-avatar">JD</div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <h1 class="page-title">Integraciones</h1>
+      <p class="page-subtitle">Conecta tus herramientas de marketing</p>
+
+      <div class="search-bar">
+        <span class="material-icons-outlined search-icon">search</span>
+        <input type="text" placeholder="Búsqueda">
+      </div>
+
+      <div class="integrations-grid">
+
+        <!-- Google Analytics -->
+        <div class="integration-card">
+          <div class="integration-logo">
+            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <path d="M38 42H34C32.9 42 32 41.1 32 40V8C32 6.9 32.9 6 34 6H38C39.1 6 40 6.9 40 8V40C40 41.1 39.1 42 38 42Z" fill="#F9AB00"/>
+              <path d="M26 42H22C20.9 42 20 41.1 20 40V20C20 18.9 20.9 18 22 18H26C27.1 18 28 18.9 28 20V40C28 41.1 27.1 42 26 42Z" fill="#E37400"/>
+              <circle cx="12" cy="38" r="4" fill="#E37400"/>
+            </svg>
+          </div>
+          <div class="integration-name">Google Analytics</div>
+          <a href="#" class="integration-connect">
+            Conectar <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <!-- Google Tag Manager -->
+        <div class="integration-card">
+          <div class="integration-logo">
+            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <path d="M27.4 4.6L4.6 27.4C3.4 28.6 3.4 30.5 4.6 31.7L16.3 43.4C17.5 44.6 19.4 44.6 20.6 43.4L43.4 20.6C44.6 19.4 44.6 17.5 43.4 16.3L31.7 4.6C30.5 3.4 28.6 3.4 27.4 4.6Z" fill="#8AB4F8"/>
+              <path d="M27.4 4.6L4.6 27.4C3.4 28.6 3.4 30.5 4.6 31.7L16.3 43.4L43.4 16.3C44.6 15.1 44.6 13.2 43.4 12L31.7 4.6C30.5 3.4 28.6 3.4 27.4 4.6Z" fill="#4285F4"/>
+              <circle cx="24" cy="24" r="5" fill="#fff"/>
+            </svg>
+          </div>
+          <div class="integration-name">Google Tag Manager</div>
+          <a href="#" class="integration-connect">
+            Conectar <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <!-- Google Ads -->
+        <div class="integration-card">
+          <div class="integration-logo">
+            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 34.5L18 14.5L30 34.5H6Z" fill="#FBBC04"/>
+              <path d="M30 34.5L42 14.5L36 6.5L18 34.5H30Z" fill="#4285F4"/>
+              <circle cx="12" cy="35" r="6" fill="#34A853"/>
+            </svg>
+          </div>
+          <div class="integration-name">Google Ads</div>
+          <a href="#" class="integration-connect">
+            Conectar <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <!-- Facebook e Instagram -->
+        <div class="integration-card">
+          <div class="integration-logo">
+            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="metaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#0081FB"/>
+                  <stop offset="50%" style="stop-color:#A033FF"/>
+                  <stop offset="100%" style="stop-color:#FF6534"/>
+                </linearGradient>
+              </defs>
+              <path d="M8 24C8 18 10 14 14 14C17 14 19 17 21 21L24 28L27 21C29 17 31 14 34 14C38 14 40 18 40 24C40 30 38 34 34 34C31 34 29 31 27 27L24 20L21 27C19 31 17 34 14 34C10 34 8 30 8 24Z" fill="url(#metaGrad)" stroke="url(#metaGrad)" stroke-width="3" stroke-linecap="round" fill-opacity="0" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="integration-name">Facebook e instagram</div>
+          <a href="#" class="integration-connect">
+            Conectar <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <!-- Google Merchant Center -->
+        <div class="integration-card">
+          <div class="integration-logo">
+            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <rect x="8" y="20" width="32" height="22" rx="2" fill="#4285F4"/>
+              <path d="M8 20L14 6H34L40 20" fill="#FBBC04" stroke="#FBBC04" stroke-width="0.5"/>
+              <path d="M16 20V32" stroke="#fff" stroke-width="2"/>
+              <path d="M24 20V32" stroke="#fff" stroke-width="2"/>
+              <path d="M32 20V32" stroke="#fff" stroke-width="2"/>
+              <rect x="18" y="30" width="12" height="12" rx="1" fill="#34A853"/>
+            </svg>
+          </div>
+          <div class="integration-name">Google Merchant Center</div>
+          <a href="google-merchant-center.html" class="integration-connect">
+            Conectar <span class="arrow">→</span>
+          </a>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>
