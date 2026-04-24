@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8" />
+<title>Iniciar una devolución — Lamparas MX</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<style>
+  html, body { background: var(--bg-subtle); min-height: 100vh; }
+  * { box-sizing: border-box; }
+
+  /* ---------- Top storefront bar ---------- */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid var(--border-default);
+    box-shadow: var(--shadow-xs);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .topbar-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 40px;
+    height: 64px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 32px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--font-sans);
+    font-weight: 700; font-size: 18px;
+    color: var(--fg-primary); letter-spacing: -0.01em;
+  }
+  .brand-mark {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--color-brand-oxford);
+    color: #fff; display:flex; align-items:center; justify-content:center;
+    font-weight: 800; font-size: 13px; letter-spacing: 0.02em;
+  }
+  .nav { display: flex; gap: 28px; }
+  .nav a {
+    font-family: var(--font-sans); font-size: 14px; font-weight: 500;
+    color: var(--fg-secondary); text-decoration: none;
+  }
+  .nav a:hover { color: var(--fg-primary); }
+  .nav a.active { color: var(--fg-primary); font-weight: 600; }
+  .topbar-actions { display:flex; justify-content:flex-end; align-items:center; gap: 16px; }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 999px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--fg-primary); background: transparent; border: none; cursor: pointer;
+    transition: background var(--dur-med) var(--ease-standard);
+  }
+  .icon-btn:hover { background: var(--color-gray-100); }
+
+  /* ---------- Breadcrumb / back ---------- */
+  .page {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 32px 40px 64px;
+  }
+  .back-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 20px;
+  }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 500;
+    color: var(--fg-secondary); text-decoration: none; cursor: pointer;
+    padding: 6px 10px; border-radius: 8px; margin-left: -10px;
+    transition: background var(--dur-med) var(--ease-standard), color var(--dur-med) var(--ease-standard);
+  }
+  .back-link:hover { background: var(--color-gray-100); color: var(--fg-primary); }
+
+  /* ---------- Page header ---------- */
+  .page-header { margin-bottom: 28px; }
+  .page-title {
+    font-family: var(--font-sans);
+    font-weight: 700; font-size: 30px; line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: var(--fg-primary);
+    margin-bottom: 6px;
+  }
+  .order-meta {
+    font-family: var(--font-sans); font-size: 13px; font-weight: 500;
+    color: var(--fg-secondary);
+  }
+  .order-meta .order-num { color: var(--fg-primary); font-weight: 600; }
+  .dot-sep { display: inline-block; width: 3px; height: 3px; border-radius:999px; background: var(--color-gray-500); margin: 0 10px; vertical-align: middle; }
+
+  /* ---------- Stepper ---------- */
+  .stepper {
+    display: flex; align-items: center; gap: 12px;
+    margin: 18px 0 28px;
+    padding: 14px 18px;
+    background: #fff;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+  }
+  .step { display: flex; align-items: center; gap: 10px; color: var(--fg-secondary); }
+  .step-num {
+    width: 22px; height: 22px; border-radius: 999px;
+    background: var(--color-gray-200); color: var(--fg-secondary);
+    font-family: var(--font-sans); font-weight: 700; font-size: 12px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .step.active .step-num { background: var(--color-brand-oxford); color: #fff; }
+  .step.done .step-num { background: var(--color-green-700); color: #fff; }
+  .step-label {
+    font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+    color: var(--fg-secondary);
+  }
+  .step.active .step-label { color: var(--fg-primary); }
+  .step-sep {
+    flex: 1; height: 1px; background: var(--border-default); min-width: 24px;
+  }
+
+  /* ---------- Layout ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* ---------- Card ---------- */
+  .card {
+    background: #fff;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xs);
+  }
+  .card-header {
+    padding: 20px 24px 0;
+  }
+  .card-title {
+    font-family: var(--font-sans); font-weight: 700; font-size: 18px; line-height: 1.2;
+    color: var(--fg-primary); margin: 0 0 4px;
+  }
+  .card-subtitle {
+    font-family: var(--font-sans); font-size: 13px; color: var(--fg-secondary);
+  }
+  .card-body { padding: 20px 24px 24px; }
+  .divider { height: 1px; background: var(--border-subtle); margin: 0; border:0; }
+
+  /* ---------- Product row ---------- */
+  .product-row {
+    display: grid;
+    grid-template-columns: 24px 72px 1fr auto;
+    gap: 16px;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    background: #fff;
+    transition: border-color var(--dur-med) var(--ease-standard), box-shadow var(--dur-med) var(--ease-standard);
+  }
+  .product-row.selected {
+    border-color: var(--color-brand-oxford);
+    box-shadow: 0 0 0 1px var(--color-brand-oxford);
+  }
+
+  /* Checkbox */
+  .chk {
+    width: 22px; height: 22px; border-radius: 6px;
+    border: 1.5px solid var(--color-gray-400);
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #fff; cursor: pointer;
+    transition: background var(--dur-fast), border-color var(--dur-fast);
+  }
+  .chk.checked {
+    background: var(--color-brand-oxford);
+    border-color: var(--color-brand-oxford);
+  }
+  .chk svg { opacity: 0; transition: opacity var(--dur-fast); }
+  .chk.checked svg { opacity: 1; }
+
+  .thumb {
+    width: 72px; height: 72px; border-radius: 10px;
+    background: var(--color-gray-100);
+    border: 1px solid var(--border-subtle);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  /* SVG lamp placeholder */
+  .thumb svg { display:block; }
+
+  .product-info {
+    display: flex; flex-direction: column; gap: 4px; min-width: 0;
+  }
+  .product-name {
+    font-family: var(--font-sans); font-weight: 600; font-size: 15px;
+    color: var(--fg-primary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .product-sub {
+    font-family: var(--font-sans); font-size: 12px; color: var(--fg-secondary);
+    font-feature-settings: "tnum" 1;
+  }
+  .product-sub .sep { display:inline-block; width:3px; height:3px; border-radius:999px; background: var(--color-gray-500); margin: 0 8px; vertical-align: middle; }
+
+  .product-price {
+    font-family: var(--font-sans); font-weight: 700; font-size: 15px;
+    color: var(--fg-primary); font-feature-settings: "tnum" 1;
+    white-space: nowrap;
+  }
+
+  /* ---------- Form grid ---------- */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .form-grid .full { grid-column: 1 / -1; }
+
+  .field {
+    position: relative;
+    display: flex; flex-direction: column;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    background: #fff;
+    padding: 10px 14px;
+    min-height: 58px;
+    transition: border-color var(--dur-med) var(--ease-standard), box-shadow var(--dur-med) var(--ease-standard);
+    cursor: pointer;
+  }
+  .field:hover { border-color: var(--border-strong); }
+  .field:focus-within, .field.open {
+    border-color: var(--color-brand-oxford);
+    box-shadow: 0 0 0 1px var(--color-brand-oxford);
+  }
+  .field-label {
+    font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+    color: var(--fg-secondary);
+    letter-spacing: 0.01em;
+  }
+  .field-value {
+    font-family: var(--font-sans); font-size: 14px; font-weight: 500;
+    color: var(--fg-primary);
+    margin-top: 2px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px;
+  }
+  .field-value.placeholder { color: var(--color-gray-600); font-weight: 400; }
+  .field .caret { color: var(--fg-secondary); transition: transform var(--dur-med) var(--ease-standard); flex-shrink: 0; }
+  .field.open .caret { transform: rotate(180deg); }
+
+  .field-textarea {
+    min-height: 96px;
+    align-items: stretch;
+  }
+  .field-textarea textarea {
+    flex: 1;
+    border: none; outline: none; resize: none;
+    font-family: var(--font-sans); font-size: 14px; color: var(--fg-primary);
+    background: transparent; margin-top: 4px;
+    line-height: 1.45;
+  }
+  .field-textarea textarea::placeholder { color: var(--color-gray-600); }
+
+  /* Dropdown menu */
+  .menu {
+    position: absolute;
+    top: calc(100% + 6px); left: 0; right: 0;
+    background: #fff;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 6px;
+    z-index: 5;
+    display: none;
+  }
+  .field.open .menu { display: block; }
+  .menu-item {
+    padding: 10px 12px;
+    font-family: var(--font-sans); font-size: 14px; font-weight: 500;
+    color: var(--fg-primary);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    transition: background var(--dur-fast);
+  }
+  .menu-item:hover { background: var(--color-gray-50); }
+  .menu-item .check { margin-left: auto; opacity: 0; color: var(--color-brand-oxford); }
+  .menu-item.selected .check { opacity: 1; }
+  .menu-item .sub {
+    font-family: var(--font-sans); font-size: 12px; font-weight: 400;
+    color: var(--fg-secondary);
+    display: block;
+    margin-top: 2px;
+  }
+  .menu-item .stack { display:flex; flex-direction:column; }
+
+  /* ---------- Photo upload ---------- */
+  .upload-zone {
+    margin-top: 16px;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    background: var(--bg-subtle);
+    padding: 20px;
+    display: flex; align-items: center; gap: 16px;
+    transition: background var(--dur-med), border-color var(--dur-med);
+    cursor: pointer;
+  }
+  .upload-zone:hover { background: #fff; border-color: var(--color-brand-oxford); }
+  .upload-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: #fff; border: 1px solid var(--border-subtle);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--fg-secondary); flex-shrink: 0;
+  }
+  .upload-text {
+    font-family: var(--font-sans); font-size: 13px; color: var(--fg-secondary);
+    line-height: 1.4;
+  }
+  .upload-text strong { color: var(--fg-primary); font-weight: 600; }
+
+  /* ---------- Summary (right) ---------- */
+  .summary { position: sticky; top: 96px; }
+  .summary-row {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--font-sans); font-size: 13px;
+    color: var(--fg-secondary);
+    padding: 8px 0;
+  }
+  .summary-row .lbl { color: var(--fg-secondary); }
+  .summary-row .val {
+    color: var(--fg-primary); font-weight: 600;
+    font-feature-settings: "tnum" 1;
+  }
+  .summary-row.total .lbl,
+  .summary-row.total .val {
+    font-size: 15px;
+    color: var(--fg-primary);
+    font-weight: 700;
+  }
+  .summary-sep { height: 1px; background: var(--border-subtle); margin: 12px 0; border:0; }
+
+  .info-note {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: var(--color-blue-100);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    margin: 16px 0 20px;
+  }
+  .info-note .info-icon {
+    flex-shrink: 0; color: var(--color-blue-700); margin-top: 1px;
+  }
+  .info-note p {
+    font-family: var(--font-sans); font-size: 12px; line-height: 1.45;
+    color: var(--fg-primary); margin: 0;
+  }
+  .info-note a { color: var(--color-blue-700); font-weight: 600; }
+  .info-note a:hover { text-decoration: underline; }
+
+  /* Refund method */
+  .refund-method {
+    display:flex; align-items:center; gap: 12px;
+    padding: 12px; border: 1px solid var(--border-default);
+    border-radius: var(--radius-md); background: #fff;
+  }
+  .refund-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--bg-subtle);
+    display:flex; align-items:center; justify-content:center;
+    color: var(--fg-primary); flex-shrink:0;
+  }
+  .refund-meta { display: flex; flex-direction: column; }
+  .refund-title { font-family: var(--font-sans); font-weight: 600; font-size: 13px; color: var(--fg-primary); }
+  .refund-sub { font-family: var(--font-sans); font-size: 12px; color: var(--fg-secondary); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: var(--font-sans); font-weight: 700; font-size: 14px;
+    border-radius: var(--radius-lg); border: 1px solid transparent;
+    padding: 0 18px; height: 44px; cursor: pointer;
+    transition: background var(--dur-med) var(--ease-standard),
+                border-color var(--dur-med) var(--ease-standard),
+                color var(--dur-med) var(--ease-standard);
+  }
+  .btn-primary {
+    background: var(--color-brand-red-500); color: #fff;
+  }
+  .btn-primary:hover { background: var(--color-brand-red-700); }
+  .btn-primary:disabled {
+    background: var(--color-brand-red-100); color: #fff;
+    cursor: not-allowed;
+  }
+  .btn-secondary {
+    background: #fff; color: var(--fg-primary);
+    border-color: var(--border-default);
+    font-weight: 500;
+  }
+  .btn-secondary:hover { border-color: var(--color-brand-oxford); }
+  .btn-block { width: 100%; }
+
+  .summary-cta { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .help-line {
+    text-align: center;
+    font-family: var(--font-sans); font-size: 12px; color: var(--fg-secondary);
+    margin-top: 10px;
+  }
+  .help-line a { color: var(--fg-primary); font-weight: 600; }
+
+  /* Items list summary */
+  .sum-item {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 12px; align-items: center;
+    padding: 10px 0;
+  }
+  .sum-item + .sum-item { border-top: 1px solid var(--border-subtle); }
+  .sum-thumb {
+    width: 44px; height: 44px; border-radius: 8px;
+    background: var(--color-gray-100);
+    border: 1px solid var(--border-subtle);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .sum-name {
+    font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+    color: var(--fg-primary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .sum-sub { font-family: var(--font-sans); font-size: 11px; color: var(--fg-secondary); font-feature-settings: "tnum" 1; }
+  .sum-price { font-family: var(--font-sans); font-weight: 700; font-size: 13px; color: var(--fg-primary); font-feature-settings: "tnum" 1; }
+
+  .counter {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 3px 4px; border: 1px solid var(--border-default); border-radius: 999px;
+    background: #fff;
+  }
+  .counter button {
+    width: 22px; height: 22px; border-radius: 999px;
+    background: var(--color-gray-100); border: none; cursor: pointer;
+    color: var(--fg-primary); display:inline-flex; align-items:center; justify-content:center;
+  }
+  .counter button:hover { background: var(--color-gray-200); }
+  .counter span {
+    font-family: var(--font-sans); font-weight: 600; font-size: 12px;
+    min-width: 14px; text-align: center;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* ---------- Return policy drawer (mini) ---------- */
+  .policy-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+    color: var(--color-blue-700); text-decoration: none;
+  }
+  .policy-chip:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">L</div>
+      Lamparas MX
+    </div>
+    <nav class="nav">
+      <a href="#">Tienda</a>
+      <a href="#">Colecciones</a>
+      <a href="#">Iluminación</a>
+      <a href="#" class="active">Mis pedidos</a>
+      <a href="#">Ayuda</a>
+    </nav>
+    <div class="topbar-actions">
+      <button class="icon-btn" aria-label="Buscar">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="5"/><line x1="13" y1="13" x2="17" y2="17"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="Cuenta">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="7" r="3"/><path d="M4 16 C 5 13, 8 12, 10 12 C 12 12, 15 13, 16 16"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="Carrito">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5 H5 L7 14 H16 L18 7 H6"/><circle cx="8" cy="17" r="1.2"/><circle cx="15" cy="17" r="1.2"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== PAGE ===== -->
+<main class="page">
+  <div class="back-row">
+    <a class="back-link" href="#">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 5 7 10 12 15"/></svg>
+      Volver a mis pedidos
+    </a>
+  </div>
+
+  <div class="page-header">
+    <h1 class="page-title">Iniciar una devolución</h1>
+    <div class="order-meta">
+      <span class="order-num">Pedido #LMX-48210</span>
+      <span class="dot-sep"></span>
+      Realizado el 15 abr 2026
+      <span class="dot-sep"></span>
+      Entregado el 18 abr 2026
+    </div>
+  </div>
+
+  <!-- Stepper -->
+  <div class="stepper">
+    <div class="step active">
+      <div class="step-num">1</div>
+      <div class="step-label">Selecciona artículos y motivo</div>
+    </div>
+    <div class="step-sep"></div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-label">Método de devolución</div>
+    </div>
+    <div class="step-sep"></div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-label">Reembolso</div>
+    </div>
+    <div class="step-sep"></div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-label">Confirmación</div>
+    </div>
+  </div>
+
+  <!-- ===== LAYOUT ===== -->
+  <div class="layout">
+
+    <!-- LEFT column -->
+    <section class="left">
+
+      <!-- Items card -->
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-header">
+          <h2 class="card-title">Selecciona los artículos a devolver</h2>
+          <p class="card-subtitle">Elige uno o más artículos de tu pedido. Luego indica la cantidad y motivo.</p>
+        </div>
+        <div class="card-body">
+
+          <!-- Item 1 (selected) -->
+          <div class="product-row selected" id="row-1" style="margin-bottom: 10px;">
+            <div class="chk checked" data-item="1" role="checkbox" aria-checked="true" tabindex="0">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10 8 14 16 6"/></svg>
+            </div>
+            <div class="thumb" aria-hidden="true">
+              <!-- Lamp illustration -->
+              <svg width="54" height="54" viewBox="0 0 54 54" fill="none">
+                <rect width="54" height="54" fill="#F3F3F3"/>
+                <!-- shade -->
+                <path d="M17 10 h20 l-3 16 h-14 z" fill="#FFFFFF" stroke="#4C4C4C" stroke-width="1.1" stroke-linejoin="round"/>
+                <!-- neck -->
+                <rect x="25.5" y="26" width="3" height="4" fill="#4C4C4C"/>
+                <!-- base -->
+                <path d="M18 44 C 18 34, 20 30, 27 30 C 34 30, 36 34, 36 44 Z" fill="#CFCFCF" stroke="#828282" stroke-width="0.8"/>
+                <ellipse cx="27" cy="44" rx="9" ry="1.6" fill="#DBDBDB"/>
+              </svg>
+            </div>
+            <div class="product-info">
+              <span class="product-name">Lámpara de Mesa Dalel</span>
+              <span class="product-sub">
+                SKU LMP-DAL-042
+                <span class="sep"></span>
+                Color arena
+                <span class="sep"></span>
+                Cantidad comprada: 1
+              </span>
+            </div>
+            <div class="product-price">$20.00</div>
+          </div>
+
+          <!-- Item 2 (not selected) -->
+          <div class="product-row" id="row-2" style="margin-bottom: 0;">
+            <div class="chk" data-item="2" role="checkbox" aria-checked="false" tabindex="0">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10 8 14 16 6"/></svg>
+            </div>
+            <div class="thumb" aria-hidden="true">
+              <svg width="54" height="54" viewBox="0 0 54 54" fill="none">
+                <rect width="54" height="54" fill="#F3F3F3"/>
+                <!-- pendant bulb -->
+                <line x1="27" y1="6" x2="27" y2="20" stroke="#4C4C4C" stroke-width="1"/>
+                <circle cx="27" cy="28" r="9" fill="#FEF08A" stroke="#4C4C4C" stroke-width="1"/>
+                <rect x="23" y="18" width="8" height="5" rx="1" fill="#CFCFCF" stroke="#4C4C4C" stroke-width="0.8"/>
+                <path d="M21 35 C 22 40, 32 40, 33 35" stroke="#E26153" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="product-info">
+              <span class="product-name">Foco LED Vintage Ámbar 8W</span>
+              <span class="product-sub">
+                SKU FCO-VIN-08A
+                <span class="sep"></span>
+                E27
+                <span class="sep"></span>
+                Cantidad comprada: 2
+              </span>
+            </div>
+            <div class="product-price">$12.00</div>
+          </div>
+
+          <!-- Form for selected item 1 -->
+          <div class="form-grid" id="form-1">
+
+            <!-- Cantidad dropdown -->
+            <div class="field" data-field="cantidad" tabindex="0">
+              <span class="field-label">Cantidad</span>
+              <div class="field-value" id="val-cantidad">
+                <span>1</span>
+                <svg class="caret" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 8 10 12 14 8"/></svg>
+              </div>
+              <div class="menu" id="menu-cantidad">
+                <div class="menu-item selected" data-val="1"><span>1</span><svg class="check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10 8 14 16 6"/></svg></div>
+              </div>
+            </div>
+
+            <!-- Motivo dropdown -->
+            <div class="field" data-field="motivo" tabindex="0">
+              <span class="field-label">Motivo</span>
+              <div class="field-value placeholder" id="val-motivo">
+                <span>Selecciona un motivo</span>
+                <svg class="caret" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 8 10 12 14 8"/></svg>
+              </div>
+              <div class="menu" id="menu-motivo">
+                <div class="menu-item" data-val="Llegó dañado">
+                  <div class="stack">
+                    <span>Llegó dañado o defectuoso</span>
+                    <span class="sub">Requiere fotos de evidencia</span>
+                  </div>
+                  <svg class="check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10 8 14 16 6"/></svg>
+                </div>
+                <div class="menu-item" data-val="No es lo que esperaba">
+                  <div class="stack">
+                    <span>No es lo que esperaba</span>
+                    <span class="sub">Color, tamaño o estilo diferente</span>
+                  </div>
+                  <svg class="check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10 8 14 16 6"/></svg>
+                </div>
+                <div class="menu-item" data-val="Artículo incorrecto">
+                  <div class="stack">
+                    <span>Llegó un artículo incorrecto</span>
+                    <span class="sub">Diferente al que pedí</span>
+                  </div>
+                  <svg class="check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10 8 14 16 6"/></svg>
+                </div>
+                <div class="menu-item" data-val="Ya no lo necesito">
+                  <div class="stack">
+                    <span>Ya no lo necesito</span>
+                    <span class="sub">El costo de envío corre por tu cuenta</span>
+                  </div>
+                  <svg class="check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10 8 14 16 6"/></svg>
+                </div>
+                <div class="menu-item" data-val="Otro">
+                  <div class="stack">
+                    <span>Otro</span>
+                    <span class="sub">Descríbelo en las notas</span>
+                  </div>
+                  <svg class="check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10 8 14 16 6"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="field field-textarea full" style="cursor: text;">
+              <span class="field-label">Notas (opcional)</span>
+              <textarea placeholder="Cuéntanos más sobre tu experiencia para ayudarnos a procesar tu devolución más rápido."></textarea>
+            </div>
+
+            <!-- Upload -->
+            <div class="upload-zone full" id="upload">
+              <div class="upload-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 13 V15 A2 2 0 0 0 6 17 H14 A2 2 0 0 0 16 15 V13"/>
+                  <polyline points="7 7 10 4 13 7"/>
+                  <line x1="10" y1="4" x2="10" y2="13"/>
+                </svg>
+              </div>
+              <div class="upload-text">
+                <strong>Añade fotos del artículo</strong> — arrástralas aquí o haz clic para seleccionar.<br/>
+                JPG o PNG, hasta 10 MB cada una. Máximo 5 archivos.
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Policy card -->
+      <div class="card">
+        <div class="card-body" style="padding: 18px 24px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+            <div style="display:flex; align-items:flex-start; gap: 14px;">
+              <div style="width:40px; height:40px; border-radius:10px; background: var(--bg-subtle); display:flex; align-items:center; justify-content:center; color: var(--fg-primary); flex-shrink:0;">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 3 H13 L16 6 V17 H4 Z"/>
+                  <polyline points="13 3 13 6 16 6"/>
+                  <line x1="7" y1="10" x2="13" y2="10"/>
+                  <line x1="7" y1="13" x2="11" y2="13"/>
+                </svg>
+              </div>
+              <div>
+                <div style="font-family: var(--font-sans); font-weight: 700; font-size: 14px; color: var(--fg-primary); margin-bottom: 4px;">Política de devoluciones de Lamparas MX</div>
+                <div style="font-family: var(--font-sans); font-size: 13px; line-height: 1.45; color: var(--fg-secondary);">
+                  Tienes hasta <strong style="color: var(--fg-primary); font-weight: 600;">30 días naturales</strong> desde la entrega. Los artículos deben estar sin uso, con empaque original y etiquetas.
+                </div>
+              </div>
+            </div>
+            <a href="#" class="policy-chip" style="flex-shrink:0;">
+              Ver política completa
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 5 12 10 8 15"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT column (summary) -->
+    <aside class="summary">
+      <div class="card">
+        <div class="card-header">
+          <div style="display:flex; align-items:baseline; justify-content:space-between;">
+            <h2 class="card-title">Devolviendo</h2>
+            <span style="font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--fg-secondary);">1 artículo</span>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <!-- items -->
+          <div class="sum-item">
+            <div class="sum-thumb">
+              <svg width="34" height="34" viewBox="0 0 54 54" fill="none">
+                <rect width="54" height="54" fill="#F3F3F3"/>
+                <path d="M17 10 h20 l-3 16 h-14 z" fill="#FFFFFF" stroke="#4C4C4C" stroke-width="1.1" stroke-linejoin="round"/>
+                <rect x="25.5" y="26" width="3" height="4" fill="#4C4C4C"/>
+                <path d="M18 44 C 18 34, 20 30, 27 30 C 34 30, 36 34, 36 44 Z" fill="#CFCFCF" stroke="#828282" stroke-width="0.8"/>
+                <ellipse cx="27" cy="44" rx="9" ry="1.6" fill="#DBDBDB"/>
+              </svg>
+            </div>
+            <div>
+              <div class="sum-name">Lámpara de Mesa Dalel</div>
+              <div class="sum-sub">Cantidad 1 · $20.00 c/u</div>
+            </div>
+            <div class="sum-price">$20.00</div>
+          </div>
+
+          <hr class="summary-sep" />
+
+          <div class="summary-row">
+            <span class="lbl">Subtotal a reembolsar</span>
+            <span class="val">$20.00</span>
+          </div>
+          <div class="summary-row">
+            <span class="lbl">Costo de envío de retorno</span>
+            <span class="val" style="color: var(--color-green-700);">Gratis</span>
+          </div>
+          <div class="summary-row">
+            <span class="lbl">Impuestos</span>
+            <span class="val">Incluidos</span>
+          </div>
+
+          <hr class="summary-sep" />
+
+          <div class="summary-row total">
+            <span class="lbl">Total estimado</span>
+            <span class="val">$20.00 MXN</span>
+          </div>
+
+          <!-- Refund method preview -->
+          <div style="margin-top: 16px;">
+            <div style="font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--fg-secondary); margin-bottom: 8px;">Reembolso a</div>
+            <div class="refund-method">
+              <div class="refund-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2.5" y="5" width="15" height="10" rx="1.5"/>
+                  <line x1="2.5" y1="9" x2="17.5" y2="9"/>
+                </svg>
+              </div>
+              <div class="refund-meta">
+                <span class="refund-title">Visa terminación 4281</span>
+                <span class="refund-sub">Reembolso en 5–7 días hábiles</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info -->
+          <div class="info-note">
+            <div class="info-icon">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="10" cy="10" r="7.5"/>
+                <line x1="10" y1="9" x2="10" y2="14"/>
+                <circle cx="10" cy="6.5" r="0.6" fill="currentColor"/>
+              </svg>
+            </div>
+            <p>La elegibilidad para devoluciones y reembolsos se basará en la <a href="#">política de reembolso</a> de Lamparas MX.</p>
+          </div>
+
+          <!-- CTAs -->
+          <div class="summary-cta">
+            <button class="btn btn-primary btn-block" id="submitBtn" disabled>
+              Solicitar devolución
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="10" x2="16" y2="10"/><polyline points="12 6 16 10 12 14"/></svg>
+            </button>
+            <button class="btn btn-secondary btn-block">Guardar borrador</button>
+          </div>
+          <div class="help-line">
+            ¿Necesitas ayuda? <a href="#">Contactar soporte</a>
+          </div>
+
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</main>
+
+<script>
+  // --- Checkboxes ---
+  document.querySelectorAll('.chk').forEach(chk => {
+    const toggle = () => {
+      const on = !chk.classList.contains('checked');
+      chk.classList.toggle('checked', on);
+      chk.setAttribute('aria-checked', on);
+      const row = chk.closest('.product-row');
+      row.classList.toggle('selected', on);
+    };
+    chk.addEventListener('click', toggle);
+    chk.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); } });
+  });
+
+  // --- Dropdowns ---
+  const fields = document.querySelectorAll('.field[data-field]');
+  fields.forEach(field => {
+    const which = field.dataset.field;
+    const valNode = document.getElementById('val-' + which);
+
+    field.addEventListener('click', (e) => {
+      // open / close
+      const wasOpen = field.classList.contains('open');
+      fields.forEach(f => f.classList.remove('open'));
+      if (!wasOpen) field.classList.add('open');
+      e.stopPropagation();
+    });
+
+    field.querySelectorAll('.menu-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        field.querySelectorAll('.menu-item').forEach(i => i.classList.remove('selected'));
+        item.classList.add('selected');
+        const label = item.querySelector('.stack > span') || item.querySelector('span');
+        valNode.classList.remove('placeholder');
+        valNode.querySelector('span').textContent = label.textContent;
+        field.classList.remove('open');
+
+        // Enable submit if motivo selected
+        if (which === 'motivo') {
+          document.getElementById('submitBtn').disabled = false;
+        }
+      });
+    });
+  });
+
+  document.addEventListener('click', () => {
+    fields.forEach(f => f.classList.remove('open'));
+  });
+
+  // Populate cantidad with 1..2
+  const cantMenu = document.getElementById('menu-cantidad');
+  cantMenu.innerHTML = '';
+  [1].forEach((n, i) => {
+    const el = document.createElement('div');
+    el.className = 'menu-item' + (i === 0 ? ' selected' : '');
+    el.dataset.val = n;
+    el.innerHTML = `<span>${n}</span><svg class="check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10 8 14 16 6"/></svg>`;
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      cantMenu.querySelectorAll('.menu-item').forEach(i => i.classList.remove('selected'));
+      el.classList.add('selected');
+      const v = document.getElementById('val-cantidad').querySelector('span');
+      v.textContent = n;
+      document.querySelector('[data-field="cantidad"]').classList.remove('open');
+    });
+    cantMenu.appendChild(el);
+  });
+</script>
+
+</body>
+</html>

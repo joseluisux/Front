@@ -1,0 +1,255 @@
+/* =====================================================================
+   Nexus Design System — T1
+   Colors & Typography tokens
+   Source of truth: Figma "Nexus V2.fig" / Styles > Átomos de color &
+   Átomos de tipografía. Values extracted verbatim from the .fig JSX.
+   ===================================================================== */
+
+/* Brand fonts — Manrope for all admin UI (local TTFs), Sora for landing headlines
+   (local TTFs), Inter for landing body (Google Fonts). Anonymous Pro kept for mono. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Anonymous+Pro:wght@400;700&display=swap');
+
+@font-face { font-family: 'Manrope'; font-style: normal; font-weight: 200; font-display: swap; src: url('fonts/Manrope-ExtraLight.ttf') format('truetype'); }
+@font-face { font-family: 'Manrope'; font-style: normal; font-weight: 300; font-display: swap; src: url('fonts/Manrope-Light.ttf') format('truetype'); }
+@font-face { font-family: 'Manrope'; font-style: normal; font-weight: 400; font-display: swap; src: url('fonts/Manrope-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Manrope'; font-style: normal; font-weight: 500; font-display: swap; src: url('fonts/Manrope-Medium.ttf') format('truetype'); }
+@font-face { font-family: 'Manrope'; font-style: normal; font-weight: 600; font-display: swap; src: url('fonts/Manrope-SemiBold.ttf') format('truetype'); }
+@font-face { font-family: 'Manrope'; font-style: normal; font-weight: 700; font-display: swap; src: url('fonts/Manrope-Bold.ttf') format('truetype'); }
+@font-face { font-family: 'Manrope'; font-style: normal; font-weight: 800; font-display: swap; src: url('fonts/Manrope-ExtraBold.ttf') format('truetype'); }
+
+@font-face { font-family: 'Sora'; font-style: normal; font-weight: 100; font-display: swap; src: url('fonts/Sora-Thin.ttf') format('truetype'); }
+@font-face { font-family: 'Sora'; font-style: normal; font-weight: 200; font-display: swap; src: url('fonts/Sora-ExtraLight.ttf') format('truetype'); }
+@font-face { font-family: 'Sora'; font-style: normal; font-weight: 300; font-display: swap; src: url('fonts/Sora-Light.ttf') format('truetype'); }
+@font-face { font-family: 'Sora'; font-style: normal; font-weight: 400; font-display: swap; src: url('fonts/Sora-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Sora'; font-style: normal; font-weight: 500; font-display: swap; src: url('fonts/Sora-Medium.ttf') format('truetype'); }
+@font-face { font-family: 'Sora'; font-style: normal; font-weight: 600; font-display: swap; src: url('fonts/Sora-SemiBold.ttf') format('truetype'); }
+@font-face { font-family: 'Sora'; font-style: normal; font-weight: 700; font-display: swap; src: url('fonts/Sora-Bold.ttf') format('truetype'); }
+@font-face { font-family: 'Sora'; font-style: normal; font-weight: 800; font-display: swap; src: url('fonts/Sora-ExtraBold.ttf') format('truetype'); }
+
+:root {
+  /* ------------ BRAND / RED (primary, base 500 = #DB3B2B) ------------ */
+  /* ------------ BRAND / RED (primary)
+     Base = 500 #DB3B2B. Admin/dashboard primary uses 500; landing primary uses 400. */
+  --color-brand-red-50:  #FEF4F4;
+  --color-brand-red-100: #F9D2D2;
+  --color-brand-red-200: #F1B0A9;
+  --color-brand-red-300: #E9897E;
+  --color-brand-red-400: #E26153;   /* landing primary */
+  --color-brand-red-500: #DB3B2B;   /* base — dashboard primary */
+  --color-brand-red-600: #DB362B;
+  --color-brand-red-700: #CC0000;   /* destructive / hover */
+  --color-brand-red-bg:  #FEF4F4;   /* alias for -50 */
+
+  /* Rosa decorativo (landing gradients / CTA glow) */
+  --color-pink-landing-1: #E59086;
+  --color-pink-landing-2: #F2B5AE;
+
+  /* ------------ BRAND / BASE ------------ */
+  --color-brand-oxford: #4C4C4C;    /* primary text */
+  --color-brand-black:  #000000;
+  --color-brand-white:  #FFFFFF;
+
+  /* ------------ BRAND / GRAY (neutral scale) ------------ */
+  --color-gray-50:  #F8F8F8;
+  --color-gray-100: #F3F3F3;
+  --color-gray-200: #E7E7E7;
+  --color-gray-300: #DBDBDB;
+  --color-gray-400: #CFCFCF;
+  --color-gray-500: #C3C3C3;   /* base */
+  --color-gray-600: #9CA3AF;
+  --color-gray-700: #6B7280;
+  --color-gray-800: #4B5563;
+  --color-gray-900: #1F2937;
+
+  /* ------------ BRAND / SECONDARY & EXTENDED SCALES ------------ */
+  --color-brown-100: #FAF8F3;
+  --color-brown-300: #F0E6B8;
+  --color-brown-500: #976905;
+  --color-brown-700: #6B4A04;
+  --color-brown-900: #4A3202;
+
+  --color-orange-100: #FFF0E5;
+  --color-orange-300: #FFB380;
+  --color-orange-500: #FF6700;
+  --color-orange-700: #CC5200;
+  --color-orange-900: #8A3600;
+
+  --color-yellow-100: #FFF4BF;
+  --color-yellow-300: #FEF08A;
+  --color-yellow-500: #EDBD55;
+  --color-yellow-700: #A96A00;
+  --color-yellow-900: #713F12;
+
+  --color-blue-100: #F0F8FF;
+  --color-blue-300: #7DB3FF;
+  --color-blue-500: #2180FF;
+  --color-blue-700: #005EDC;
+  --color-blue-900: #0F3D7A;
+
+  --color-green-100: #F0FDF4;
+  --color-green-300: #6FCF97;
+  --color-green-500: #4FC153;   /* base */
+  --color-green-700: #16A34A;
+  --color-green-900: #14532D;
+
+  --color-purple-100: #FAF7FF;
+  --color-purple-300: #D0B3FF;
+  --color-purple-500: #A064FF;
+  --color-purple-700: #6537AE;
+  --color-purple-900: #3C1361;
+
+  --color-turquoise-100: #F0FDFA;
+  --color-turquoise-300: #ADFFDC;
+  --color-turquoise-500: #52F5B0;
+  --color-turquoise-700: #0F766E;
+  --color-turquoise-900: #134E4A;
+
+  /* ------------ AVATAR / COMPONENT ------------ */
+  --color-avatar-primary-blue:    #2180FF;
+  --color-avatar-primary-purple:  #6537AE;
+  --color-avatar-primary-green:   #4FC153;
+  --color-avatar-primary-yellow:  #EDBD55;
+  --color-avatar-primary-orange:  #FF6700;
+  --color-avatar-contextual-green:#51AF70;
+  --color-avatar-light-green:     #6FCF97;
+  --color-avatar-secondary-blue:  #2180FF;
+  --color-avatar-dark-blue:       #4F6EE0;
+
+  /* ------------ OVERLAYS (10% alpha unless noted) ------------ */
+  --color-overlay-green:     rgba(81,175,112,0.10);
+  --color-overlay-turquoise: rgba(82,245,176,0.10);
+  --color-overlay-blue:      rgba(33,128,255,0.10);
+  --color-overlay-violet:    rgba(173,124,250,0.10);  /* IA/facturacion */
+  --color-overlay-yellow:    rgba(237,189,85,0.10);
+  --color-overlay-orange:    rgba(255,103,0,0.10);
+  --color-overlay-red:       rgba(254,77,97,0.10);
+  --color-overlay-black:     rgba(0,0,0,0.10);
+  --color-overlay-light-black: rgba(0,0,0,0.25);
+  --color-overlay-modal:     rgba(0,0,0,0.60);        /* modal scrim */
+
+  /* ------------ SEMANTIC ROLES ------------ */
+  --fg-primary:   var(--color-brand-oxford);
+  --fg-secondary: var(--color-gray-700);   /* #6B7280 */
+  --fg-tertiary:  var(--color-gray-600);   /* #9CA3AF placeholders/disabled */
+  --fg-on-brand:  var(--color-brand-white);
+  --fg-danger:    var(--color-brand-red-700);    /* destructive = red-700 */
+  --fg-success:   var(--color-green-700);
+  --fg-warning:   var(--color-orange-700);
+  --fg-caution:   var(--color-yellow-700);
+  --fg-info:      var(--color-blue-700);
+  --fg-link:      var(--color-brand-oxford); /* links same as text, no underline */
+  --fg-ia:        var(--color-purple-500);
+
+  --bg-canvas:    var(--color-brand-white);
+  --bg-surface:   var(--color-brand-white);
+  --bg-subtle:    var(--color-gray-50);    /* #F8F8F8 */
+  --bg-muted:     var(--color-gray-100);
+  --bg-table-head:var(--color-blue-100);   /* #F0F8FF */
+  --bg-danger-subtle:   var(--color-brand-red-50);   /* #FEF4F4 */
+  --bg-success-subtle:  var(--color-green-100);      /* #F0FDF4 */
+  --bg-warning-subtle:  var(--color-orange-100);     /* #FFF0E5 */
+  --bg-caution-subtle:  var(--color-yellow-100);     /* #FFF4BF */
+  --bg-info-subtle:     var(--color-blue-100);       /* #F0F8FF */
+  --bg-ia-subtle:       var(--color-purple-100);     /* #FAF7FF */
+  --bg-premium-subtle:  var(--color-brown-100);      /* #FAF8F3 */
+
+  --border-default: #E7E7E7;
+  --border-subtle:  #EEEEEE;
+  --border-strong:  #D9D9D9;
+  --border-focus:   var(--color-blue-500);
+  --border-danger:  var(--color-brand-red-500);
+
+  /* ------------ SHADOW / ELEVATION ------------
+     xs → sticky chrome (navbar, title bars, app header).
+     sm → default card (the dominant shadow across the system).
+     md → popovers, floating menus, dropdowns.
+     lg → modals, dialogs. */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.15);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.12);
+
+  /* ------------ RADII ------------
+     10 is the default / majority-case radius. 4 for micro-chips, 8 for inputs &
+     nested cards, 16 for feature cards, 999 for pills/avatars. */
+  --radius-xs: 4px;
+  --radius-md: 8px;
+  --radius-lg: 10px;   /* DEFAULT — buttons, cards, most surfaces */
+  --radius-2xl: 16px;
+  --radius-pill: 999px;
+  --radius: var(--radius-lg);
+
+  /* ------------ SPACING (4pt base) ------------ */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-32: 128px;
+  --gutter-page: 160px; /* page-level horizontal padding from Figma */
+
+  /* ------------ TYPOGRAPHY ------------
+     Admin (all backoffice / product UI) → Manrope.
+     Landing (marketing, hero, brand pages) → Sora for display, Inter for body. */
+  --font-sans:           'Manrope', system-ui, -apple-system, sans-serif;        /* admin default */
+  --font-landing-display:'Sora', 'Manrope', system-ui, sans-serif;               /* landing headlines */
+  --font-landing-body:   'Inter', system-ui, -apple-system, sans-serif;          /* landing body / long-form */
+  --font-mono:           'Anonymous Pro', ui-monospace, Menlo, monospace;
+
+  /* Base type scale (per Figma Átomos de tipografía, Manrope) */
+  --fs-2xl:    72px;   /* display */
+  --fs-xl:     60px;
+  --fs-lg:     48px;
+  --fs-ml:     36px;   /* medium large */
+  --fs-sm-md:  30px;   /* semi medium */
+  --fs-title:  24px;
+  --fs-std:    20px;
+  --fs-base:   16px;
+  --fs-xs:     14px;
+  --fs-2xs:    12px;
+  --fs-micro:  10px;
+
+  --fw-light: 300;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  --lh-tight: 1;
+  --lh-snug:  1.15;
+  --lh-normal:1.4;
+  --lh-relaxed:1.6;
+
+  /* ------------ MOTION ------------ */
+  --ease-standard: cubic-bezier(.2,.8,.2,1);
+  --ease-out: cubic-bezier(0,0,.2,1);
+  --dur-fast: 120ms;
+  --dur-med: 200ms;
+  --dur-slow: 320ms;
+}
+
+/* ================= Base resets & semantic type ================= */
+html, body { font-family: var(--font-sans); color: var(--fg-primary); background: var(--bg-canvas); }
+body { margin: 0; font-size: var(--fs-base); line-height: var(--lh-normal); -webkit-font-smoothing: antialiased; }
+
+h1, .h1 { font-family: var(--font-sans); font-weight: var(--fw-bold);  font-size: var(--fs-xl); line-height: var(--lh-tight); letter-spacing: -0.02em; margin: 0; }
+h2, .h2 { font-family: var(--font-sans); font-weight: var(--fw-bold);  font-size: var(--fs-lg); line-height: var(--lh-tight); margin: 0; }
+h3, .h3 { font-family: var(--font-sans); font-weight: var(--fw-semibold); font-size: var(--fs-ml); line-height: var(--lh-snug); margin: 0; }
+h4, .h4 { font-family: var(--font-sans); font-weight: var(--fw-semibold); font-size: var(--fs-sm-md); line-height: var(--lh-snug); margin: 0; }
+h5, .h5 { font-family: var(--font-sans); font-weight: var(--fw-semibold); font-size: var(--fs-title); line-height: var(--lh-snug); margin: 0; }
+h6, .h6 { font-family: var(--font-sans); font-weight: var(--fw-semibold); font-size: var(--fs-std); line-height: var(--lh-snug); margin: 0; }
+
+p { margin: 0 0 12px; font-size: var(--fs-base); line-height: var(--lh-relaxed); color: var(--fg-primary); }
+small, .caption { font-size: var(--fs-2xs); color: var(--fg-secondary); }
+.micro { font-size: var(--fs-micro); font-family: var(--font-sans); color: var(--fg-secondary); font-feature-settings: 'tnum' 1; }
+.eyebrow { text-transform: uppercase; letter-spacing: .08em; font-weight: var(--fw-bold); font-size: var(--fs-2xs); color: var(--fg-primary); }
+code, kbd, pre { font-family: var(--font-mono); }
+
+a, .link { color: var(--fg-link); text-decoration: none; font-weight: var(--fw-semibold); }
+a:hover, .link:hover { text-decoration: underline; }
